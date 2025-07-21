@@ -28,8 +28,21 @@ The goal of the first stage is to create a simple simulation environment for mob
 - Main project assumptions defined.
 - Architecture design started.
 
-### Next steps
+### Next steps ()
 
 - Implement OpenGL visualization widget.
 - Implement control algorithm programming widget.
 - Functional and usability testing.
+
+### set_the_box
+
+This stage focuses on starting work with OpenGL integration.  
+The main goal is to add the ability to create and visualize a simple box (obstacle) in the simulation environment.  
+This will be the foundation for further development of the visualization module and for representing obstacles and robot movement.
+
+**Planned actions:**
+- Create basic UI for app
+- Integrate an OpenGL widget into the environment.
+- Implement basic functionality to add and display a box.
+- Create basic UI for adding and manipulating the box.
+- Test rendering and interaction with the box object.

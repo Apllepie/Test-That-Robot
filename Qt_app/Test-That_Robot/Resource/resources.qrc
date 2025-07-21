@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/file.svg</file>
+        <file>icons/file-code.svg</file>
+        <file>icons/floppy-disk.svg</file>
+        <file>icons/box.svg</file>
+        <file>icons/file-plus.svg</file>
+        <file>icons/floppy-disk-pen.svg</file>
+        <file>icons/sparkles.svg</file>
+        <file>icons/folder-open.svg</file>
+        <file>icons/map.svg</file>
+        <file>icons/person-running.svg</file>
+        <file>icons/person-running-fast.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/robot-astromech.svg</file>
+        <file>icons/basketball.svg</file>
+        <file>icons/block-brick.svg</file>
+        <file>icons/fence.svg</file>
+        <file>icons/pen.svg</file>
+    </qresource>
+</RCC>
