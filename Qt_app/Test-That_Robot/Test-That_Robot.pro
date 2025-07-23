@@ -11,11 +11,13 @@ CONFIG += c++17
 SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/opengl.cpp
+    src/opengl.cpp \
+    src/shaderclass.cpp
 
 HEADERS += \
     inc/mainwindow.h \
-    inc/opengl.h
+    inc/opengl.h \
+    inc/shaderclass.h
 
 FORMS += \
     ui/mainwindow.ui

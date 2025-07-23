@@ -18,4 +18,8 @@
         <file>icons/fence.svg</file>
         <file>icons/pen.svg</file>
     </qresource>
+    <qresource prefix="/Shaders">
+        <file>shaders/default.frag</file>
+        <file>shaders/default.vert</file>
+    </qresource>
 </RCC>

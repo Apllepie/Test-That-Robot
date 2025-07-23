@@ -15,10 +15,11 @@ OpenGl::OpenGl(QWidget *parent)
 
 OpenGl::~OpenGl()
 {
+    shader.Delete();
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
-    glDeleteProgram(shaderProgram);
+
 
 }
 
@@ -37,7 +38,7 @@ void OpenGl::initializeGL()
             0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f // inner lower right
         };
         
-    GLuint indices[] = {
+    GLuint indices[] = { //indices should start from 0
         2,4,3, // lower left triangle
         3,5,1, // lower right triangle
         4,0,5 // upper triangle
@@ -47,34 +48,9 @@ void OpenGl::initializeGL()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     qDebug() << "OpenGL initialized";
 
-    //create vertex shader and get refference
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    //attached shader source to shader object
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    //compile shader into mashine code
-    glCompileShader(vertexShader);
+    shader = Shader(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
 
-    //create fragment shader and get reference
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    //attached shader source to shader object
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);\
-    //compile shader into mashine code
-    glCompileShader(fragmentShader);
-
-    //create shaderProgram object
-    shaderProgram = glCreateProgram();
-    //attached fragmentShader and Vertex Shader to shaderProgram
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    //wrap up/ links all shaders into the shader program
-    glLinkProgram(shaderProgram);
-
-    //delete now  useles vertex and fragment shader
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-
+     qDebug() << "Shader initialized";
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1,&VBO);
     glGenBuffers(1, &EBO);
@@ -103,7 +79,7 @@ void OpenGl::resizeGL(int w, int h)
 void OpenGl::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(shaderProgram);
+    shader.Activate();
     glBindVertexArray(VAO);
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
