@@ -34,7 +34,7 @@ protected:
         "{FragColor = vec4(0.8f, 0.3f, 0.02f, 1.0f);}\n\0";
 
    GLuint shaderProgram;
-   GLuint VBO, VAO; // containers for vertex buffer obgect and vertex array objeect
+   GLuint VBO, VAO, EBO; // containers for vertex buffer obgect and vertex array objeect
 };
 
 #endif // OPENGL_H
