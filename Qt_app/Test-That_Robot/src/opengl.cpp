@@ -7,20 +7,22 @@
 #include <QDebug>
 #include <math.h>
 
-OpenGl::OpenGl(QWidget *parent)
-    : QOpenGLWidget(parent)
+OpenGl::OpenGl(QWidget *parent): QOpenGLWidget(parent)
 {
 
 }
 
 OpenGl::~OpenGl()
 {
-    shader.Delete();
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    shader->Delete();
+    vbo1->Delete();
+    vao1->Delete();
+    ebo1->Delete();
 
-
+    delete    shader;
+    delete    vbo1;
+    delete    vao1;
+    delete    ebo1;
 }
 
 void OpenGl::initializeGL()
@@ -48,26 +50,23 @@ void OpenGl::initializeGL()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     qDebug() << "OpenGL initialized";
 
-    shader = Shader(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
+    shader = new Shader(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
 
      qDebug() << "Shader initialized";
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1,&VBO);
-    glGenBuffers(1, &EBO);
+     
+    vao1 = new VAO;
+    vbo1 = new VBO(vertices, sizeof(vertices));
+    ebo1 = new EBO(indices, sizeof(indices));
 
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices),vertices, GL_STATIC_DRAW);
+    vao1->Bind();
+    vao1->linkVBO(*vbo1, 0);
+    ebo1->Bind();
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    vao1->Unbind();
+    vbo1->Unbind();
+    ebo1->Unbind();
+   
 
-    glVertexAttribPointer(0, 3, GL_FLOAT,GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 void OpenGl::resizeGL(int w, int h)
@@ -79,8 +78,12 @@ void OpenGl::resizeGL(int w, int h)
 void OpenGl::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
-    shader.Activate();
-    glBindVertexArray(VAO);
+    shader->Activate();
+    vao1->Bind();
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+    GLenum err;
+while ((err = glGetError()) != GL_NO_ERROR) {
+    qDebug() << "OpenGL error:" << err;
+}
 }

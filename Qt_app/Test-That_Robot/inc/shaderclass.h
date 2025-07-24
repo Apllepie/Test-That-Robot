@@ -6,9 +6,8 @@
 #include <GL/gl.h>
 #include <QOpenGLContext>
 #include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include <QFile>
+#include <QTextStream>
 #include <cerrno>
 
 using namespace std;
@@ -19,6 +18,7 @@ class Shader
 {
 public:
     Shader();
+    ~Shader();
     Shader(const char* vertexFile, const char * fragmentFile);
     GLuint ID;
 

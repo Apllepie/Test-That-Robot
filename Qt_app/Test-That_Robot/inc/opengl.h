@@ -14,6 +14,9 @@
 #include <QMouseEvent>
 
 #include "shaderclass.h"
+#include "vao.h"
+#include "vbo.h"
+#include "ebo.h"
 
 class OpenGl : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -28,10 +31,10 @@ protected:
     void resizeGL(int w, int h) ;
     void paintGL() ;
 
-    Shader shader;
-
-   GLuint shaderProgram;
-   GLuint VBO, VAO, EBO; // containers for vertex buffer obgect and vertex array objeect
+    Shader *shader;
+    VBO *vbo1;
+    VAO *vao1;
+    EBO *ebo1;
 
 };
 
