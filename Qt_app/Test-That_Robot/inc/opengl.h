@@ -36,6 +36,8 @@ protected:
     VAO *vao1;
     EBO *ebo1;
 
+    GLuint uniID;
+
 };
 
 #endif // OPENGL_H

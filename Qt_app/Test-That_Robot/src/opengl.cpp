@@ -30,14 +30,14 @@ void OpenGl::initializeGL()
     initializeOpenGLFunctions();
     //Vertices coordinates
     GLfloat vertices[] =
-        {
-            0.0f, float(0.5*sqrt(3)/3), 0.0f, // upper
-            0.5f/2.0, float(-0.5*sqrt(3)/6), 0.0f, // lower right
-            -0.5f/2.0f, float(-0.5*sqrt(3)/6), 0.0f, // lower left
+        {   // point                                           // color
+            0.0f, float(0.5*sqrt(3)/3), 0.0f,                  0.0f, 1.0f, 0.0f, // upper
+            0.5f/2.0, float(-0.5*sqrt(3)/6), 0.0f,             0.0f, 0.0f, 1.0f, // lower right
+            -0.5f/2.0f, float(-0.5*sqrt(3)/6), 0.0f,           1.0f, 0.0f, 0.0f,// lower left
 
-            0.0f, float(-0.5 * sqrt(3)/6), 0.0f, // inner lower
-            -0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f, // inner lower left
-            0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f // inner lower right
+            0.0f, float(-0.5 * sqrt(3)/6), 0.0f,               0.5f, 0.0f, 0.5f,// inner lower
+            -0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f,           0.5f, 0.5f, 0.0f,// inner lower left
+            0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f,            0.0f, 0.5f, 0.5f// inner lower right
         };
         
     GLuint indices[] = { //indices should start from 0
@@ -59,12 +59,15 @@ void OpenGl::initializeGL()
     ebo1 = new EBO(indices, sizeof(indices));
 
     vao1->Bind();
-    vao1->linkVBO(*vbo1, 0);
+    vao1->linkAttribut(*vbo1, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0 );
+    vao1->linkAttribut(*vbo1, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)) );
     ebo1->Bind();
 
     vao1->Unbind();
     vbo1->Unbind();
     ebo1->Unbind();
+
+    uniID =  glGetUniformLocation(shader->ID, "scale");
    
 
 }
@@ -79,6 +82,7 @@ void OpenGl::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
     shader->Activate();
+    glUniform1f(uniID, 0.5f);
     vao1->Bind();
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);

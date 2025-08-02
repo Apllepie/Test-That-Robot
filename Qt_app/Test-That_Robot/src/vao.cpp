@@ -1,4 +1,4 @@
-#include "../inc/vao.h"
+#include "vao.h"
 
 VAO::VAO() {
     QOpenGLContext *context = QOpenGLContext::currentContext();
@@ -16,13 +16,11 @@ VAO::~VAO()
 
 }
 
-void VAO::linkVBO(VBO VBO, GLuint layout)
+void VAO::linkAttribut(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void * offset)
 {
-    Bind();
     VBO.Bind();
-    f->glVertexAttribPointer(layout, 3, GL_FLOAT,GL_FALSE, 0, (void*)0);
+    f->glVertexAttribPointer(layout, numComponents, type,GL_FALSE,stride, offset);
     f->glEnableVertexAttribArray(layout);
-
 }
 
 void VAO::Bind()

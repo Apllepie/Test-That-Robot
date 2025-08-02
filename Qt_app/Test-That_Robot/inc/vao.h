@@ -12,19 +12,25 @@
 //vertices array object
 class VAO
 {
+
+private:
+    QOpenGLExtraFunctions *f;
+
 public:
     VAO();
     ~VAO();
     GLuint ID;
 
-    void linkVBO(VBO VBO, GLuint layout);
+    //
     void Bind();
     void Unbind();
     void Delete();
 
+    void linkAttribut(VBO VBO, GLuint layout,GLuint numComponents, GLenum type, GLsizeiptr stride, void * offset);
 
-private:
-    QOpenGLExtraFunctions *f;
+
+
+
 };
 
 #endif // VAO_H

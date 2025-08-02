@@ -76,5 +76,10 @@ void Shader::Delete()
      f->glDeleteProgram(ID);
 }
 
+void Shader::compileError(unsigned int shader, const char *type)
+{
+
+}
+
 
 
