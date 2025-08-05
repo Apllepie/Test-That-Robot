@@ -35,7 +35,18 @@ void Camera::changeProjection(int w, int h, float angle, float start, float end)
 
 void Camera::moveCloser_Away(float delta)
 {
-    camPos.setZ(camPos.z()+delta);
+    camPos.setZ(camPos.z()+delta * 0.7f);
+    view.setToIdentity();
+    view.lookAt(camPos, whereLook, whereUp);
+}
+
+void Camera::Move(QPoint delta)
+{
+    float speed = BASE_SPEED * camPos.z();
+    camPos.setX(camPos.x() - delta.x() *speed);
+    camPos.setY(camPos.y() + delta.y() * speed);
+    whereLook.setX(camPos.x() - delta.x() *speed);
+    whereLook.setY(camPos.y() + delta.y() * speed);
     view.setToIdentity();
     view.lookAt(camPos, whereLook, whereUp);
 }

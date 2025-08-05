@@ -19,6 +19,7 @@
 #include "ebo.h"
 #include "camera.h"
 #include <QWheelEvent>
+#include <QMouseEvent>
 
 class OpenGl : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -33,6 +34,10 @@ protected:
     void resizeGL(int w, int h) ;
     void paintGL() ;
     void wheelEvent(QWheelEvent *event);
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+
 
     Shader *shader;
     VBO *vbo1;
@@ -40,6 +45,10 @@ protected:
     EBO *ebo1;
     Camera camera;
     GLuint uniID;
+
+    bool rightMousePress = false;
+    bool leftMousePress = false;
+    QPoint lastMousePos;
 
 
 };

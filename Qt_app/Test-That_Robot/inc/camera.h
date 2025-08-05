@@ -8,7 +8,9 @@
 #include <cerrno>
 #include <qmatrix4x4.h>
 #include "shaderclass.h"
+#include <math.h>
 
+#define BASE_SPEED 0.0014f
 
 class Camera
 {
@@ -19,6 +21,7 @@ public:
     void Activate(Shader *shader);
     void changeProjection(int w, int h, float angle, float start, float end);
     void moveCloser_Away(float delta);
+    void Move(QPoint delta);
 private:
     QOpenGLExtraFunctions *f;
     QMatrix4x4 view;

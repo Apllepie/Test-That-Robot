@@ -112,6 +112,38 @@ while ((err = glGetError()) != GL_NO_ERROR) {
 void OpenGl::wheelEvent(QWheelEvent *event)
 {
         float delta = event->angleDelta().y() / 120.0f;
-        camera.moveCloser_Away(-delta * 0.3f);
+        camera.moveCloser_Away(-delta);
         update();
+}
+
+void OpenGl::mousePressEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::RightButton){
+        rightMousePress = true;
+        lastMousePos  = event->pos();
+    }
+    if(event->button() == Qt::LeftButton){
+        leftMousePress = true;
+    }
+}
+
+void OpenGl::mouseReleaseEvent(QMouseEvent *event)
+{
+    if(event->button() == Qt::RightButton){
+        rightMousePress = false;
+    }
+    if(event->button() == Qt::LeftButton){
+        leftMousePress = false;
+    }
+}
+
+void OpenGl::mouseMoveEvent(QMouseEvent *event)
+{
+    if(rightMousePress){
+        QPoint delta = event->pos() - lastMousePos;
+        lastMousePos = event->pos();
+        camera.Move(delta);
+    }
+
+    update();
 }
