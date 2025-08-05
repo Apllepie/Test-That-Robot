@@ -17,6 +17,8 @@
 #include "vao.h"
 #include "vbo.h"
 #include "ebo.h"
+#include "camera.h"
+#include <QWheelEvent>
 
 class OpenGl : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -30,13 +32,15 @@ protected:
     void initializeGL() ;
     void resizeGL(int w, int h) ;
     void paintGL() ;
+    void wheelEvent(QWheelEvent *event);
 
     Shader *shader;
     VBO *vbo1;
     VAO *vao1;
     EBO *ebo1;
-
+    Camera camera;
     GLuint uniID;
+
 
 };
 

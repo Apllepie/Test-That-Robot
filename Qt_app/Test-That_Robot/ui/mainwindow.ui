@@ -188,6 +188,12 @@
          <height>100</height>
         </size>
        </property>
+       <property name="baseSize">
+        <size>
+         <width>603</width>
+         <height>603</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>

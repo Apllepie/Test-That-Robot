@@ -9,6 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/camera.cpp \
     src/ebo.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
     src/vbo.cpp
 
 HEADERS += \
+    inc/camera.h \
     inc/ebo.h \
     inc/mainwindow.h \
     inc/opengl.h \

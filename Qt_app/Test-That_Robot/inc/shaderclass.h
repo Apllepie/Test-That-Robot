@@ -27,6 +27,9 @@ public:
 
 private:
     QOpenGLExtraFunctions *f;
+
+    void compileError(unsigned int shader, const char * type);
+
 };
 
 #endif // SHADERCLASS_H
