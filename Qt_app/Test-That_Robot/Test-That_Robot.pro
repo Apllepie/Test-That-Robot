@@ -13,6 +13,7 @@ SOURCES += \
     src/ebo.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
+    src/object.cpp \
     src/opengl.cpp \
     src/shaderclass.cpp \
     src/vao.cpp \
@@ -22,6 +23,7 @@ HEADERS += \
     inc/camera.h \
     inc/ebo.h \
     inc/mainwindow.h \
+    inc/object.h \
     inc/opengl.h \
     inc/shaderclass.h \
     inc/vao.h \

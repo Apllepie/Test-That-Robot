@@ -12,14 +12,15 @@
 #include <QVector3D>
 #include <QTime>
 #include <QMouseEvent>
+#include <QWheelEvent>
 
 #include "shaderclass.h"
 #include "vao.h"
 #include "vbo.h"
 #include "ebo.h"
 #include "camera.h"
-#include <QWheelEvent>
-#include <QMouseEvent>
+#include "object.h"
+
 
 class OpenGl : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
@@ -49,6 +50,7 @@ protected:
     bool rightMousePress = false;
     bool leftMousePress = false;
     QPoint lastMousePos;
+    Object object;
 
 
 };

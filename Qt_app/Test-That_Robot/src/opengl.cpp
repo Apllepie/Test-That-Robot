@@ -29,6 +29,8 @@ OpenGl::~OpenGl()
 void OpenGl::initializeGL()
 {
     initializeOpenGLFunctions();
+    object = Object(Object::type::TRIANGLE,{1.0f,1.0f,1.0f});
+    object.initialize();
     //Vertices coordinates
     // GLfloat vertices[] =
     //     {   // point                                           // color
@@ -69,8 +71,8 @@ void OpenGl::initializeGL()
      qDebug() << "Shader initialized";
      
     vao1 = new VAO;
-    vbo1 = new VBO(vertices, sizeof(vertices));
-    ebo1 = new EBO(indices, sizeof(indices));
+    vbo1 = new VBO(object.vertices.data(), object.vertices.size() * sizeof(GLfloat));
+    ebo1 = new EBO(object.indices.data(), object.indices.size() * sizeof(GLuint));
 
     vao1->Bind();
     vao1->linkAttribut(*vbo1, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0 );
@@ -98,11 +100,12 @@ void OpenGl::paintGL()
     shader->Activate();
     QMatrix4x4 model;
     model.setToIdentity();
-    glUniformMatrix4fv(uniID, 1, GL_FALSE, model.constData());
+    //glUniformMatrix4fv(uniID, 1, GL_FALSE, model.constData());
+    object.addModel(uniID);
     camera.Activate(shader);
     vao1->Bind();
     //glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
     GLenum err;
 while ((err = glGetError()) != GL_NO_ERROR) {
     qDebug() << "OpenGL error:" << err;
