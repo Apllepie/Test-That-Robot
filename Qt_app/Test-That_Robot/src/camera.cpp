@@ -24,8 +24,10 @@ void Camera::Init()
 
 void Camera::Activate(Shader *shader)
 {
+    shader->Activate();
     f->glUniformMatrix4fv(f->glGetUniformLocation(shader->ID, "view"),1,GL_FALSE, view.constData());
     f->glUniformMatrix4fv(f->glGetUniformLocation(shader->ID, "projection"),1,GL_FALSE, projection.constData());
+
 }
 
 void Camera::changeProjection(int w, int h, float angle, float start, float end)
