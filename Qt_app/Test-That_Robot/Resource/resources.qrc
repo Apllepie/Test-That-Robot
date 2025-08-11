@@ -21,5 +21,7 @@
     <qresource prefix="/Shaders">
         <file>shaders/default.frag</file>
         <file>shaders/default.vert</file>
+        <file>shaders/grid.frag</file>
+        <file>shaders/grid.vert</file>
     </qresource>
 </RCC>

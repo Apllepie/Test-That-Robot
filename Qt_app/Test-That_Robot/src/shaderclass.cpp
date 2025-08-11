@@ -1,4 +1,8 @@
 #include "shaderclass.h"
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
+#include <cstring>
 
 string get_file_contents(const char * filename)
 {
@@ -79,23 +83,23 @@ void Shader::Delete()
      f->glDeleteProgram(ID);
 }
 
-void Shader::compileError(unsigned int shader, const char *type)
+void Shader::compileError(unsigned int handle, const char* type)
 {
-    GLint hascomplete;
-    char log[1024];
+    GLint ok = GL_FALSE;
+    char log[4096] = {0};
 
-    if(type != "PROGRAM"){
-        f->glGetShaderiv(shader, GL_COMPILE_STATUS, &hascomplete);
-        if(hascomplete == GL_FALSE){
-            f->glGetShaderInfoLog(shader, 1024, NULL, log);
-            qDebug() <<"SHADER COMPILATION ERROR FOR: "<< type <<"\n";
+    if (std::strcmp(type, "PROGRAM") != 0) {
+        f->glGetShaderiv(handle, GL_COMPILE_STATUS, &ok);
+        if (!ok) {
+            f->glGetShaderInfoLog(handle, sizeof(log), nullptr, log);
+            qDebug() << "SHADER COMPILATION ERROR (" << type << "):\n" << log;
         }
+    } else {
+        f->glGetProgramiv(handle, GL_LINK_STATUS, &ok);
+        if (!ok) {
+            f->glGetProgramInfoLog(handle, sizeof(log), nullptr, log);
+            qDebug() << "SHADER LINKING ERROR (PROGRAM):\n" << log;
         }
-    else
-        f->glGetProgramiv(shader, GL_LINK_STATUS, &hascomplete);
-    if(hascomplete == GL_FALSE){
-        f->glGetProgramInfoLog(shader, 1024, NULL, log);
-        qDebug() <<"SHADER LINKING ERROR FOR: "<< type <<"\n";
     }
 }
 

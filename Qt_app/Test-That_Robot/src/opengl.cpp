@@ -1,7 +1,4 @@
 #include "opengl.h"
-
-
-#include "opengl.h"
 #include <GL/gl.h>
 #include <QOpenGLContext>
 #include <QDebug>
@@ -39,7 +36,8 @@ void OpenGl::paintGL()
 {
     clearError();
     camera.Activate(scene.primitives[0].getBuff().shader);
-    scene.paint();
+    scene.paint(camera);
+    //scene.paint(camera);
 
 
     checkError();
