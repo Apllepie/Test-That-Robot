@@ -1,4 +1,5 @@
 #include "inc/mainwindow.h"
+#include "qsurfaceformat.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -6,6 +7,11 @@
 
 int main(int argc, char *argv[])
 {
+    QSurfaceFormat format;
+    format.setVersion(4, 6);                   // твоя версия OpenGL
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setOption(QSurfaceFormat::DebugContext); // включаем отладочный контекст
+    QSurfaceFormat::setDefaultFormat(format);  // задаём как дефолт
     QApplication a(argc, argv);
 
     QTranslator translator;

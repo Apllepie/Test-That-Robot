@@ -6,7 +6,7 @@ Object::Object(std::vector<GLfloat> vertices, std::vector<GLuint> indices, std::
     vertices{vertices}, indices{indices}, Color{Color}
 {
 
-   // addColor();
+    addColor();
 }
 
 Object::Object(type TYPE,  std::vector<GLfloat> Color): Color{Color}
@@ -19,16 +19,37 @@ Object::Object(type TYPE,  std::vector<GLfloat> Color): Color{Color}
         Triangle();
     }
 
-   // addColor();
-    for (size_t i = 0; i < vertices.size(); i += 6) { // Шаг 6: 3 координаты + 3 цвета
-        qDebug() << "Vertex: "
-                 << vertices[i] << vertices[i + 1] << vertices[i + 2]; // Координаты вершины
-        qDebug() << "Color: "
-                 << vertices[i + 3] << vertices[i + 4] << vertices[i + 5]; // Цвет вершины
+    addColor();
+    printVertices();
+}
+
+Object::~Object()
+{
+
+
+}
+
+void Object::Destruct()
+{
+    if(shader){
+        shader->Delete();
+        delete shader;
+    }
+    if(vbo)
+    {vbo->Delete();
+        delete vbo;
+    }
+    if(vao)
+    {vao->Delete();
+        delete vao;
+    }
+    if(ebo)
+    {ebo->Delete();
+        delete ebo;
     }
 }
 
-void Object::initialize()
+void Object::initialize(const char *vertexFile, const char *fragmentFile)
 {
     QOpenGLContext *context = QOpenGLContext::currentContext();
     if (!context) {
@@ -37,12 +58,80 @@ void Object::initialize()
     f = context->extraFunctions();
 
     modelMatrix.setToIdentity();
-    addColor();
+
+    shader = new Shader(vertexFile, fragmentFile);
+    qDebug() << "Shader initialized";
+
+    vao = new VAO;
+    vbo = new VBO(vertices.data(), vertices.size() * sizeof(GLfloat));
+    ebo = new EBO(indices.data(), indices.size() * sizeof(GLuint));
+
+    vao->Bind();
+    vao->linkAttribut(*vbo, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0 );
+    vao->linkAttribut(*vbo, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)) );
+    ebo->Bind();
+
+    vao->Unbind();
+    vbo->Unbind();
+    ebo->Unbind();
+
+    uniID =  f->glGetUniformLocation(shader->ID, "model");
+}
+
+void Object::initialize(object_buff buff)
+{
+    QOpenGLContext *context = QOpenGLContext::currentContext();
+    if (!context) {
+        qFatal("No current OpenGL context");
+    }
+    f = context->extraFunctions();
+
+    modelMatrix.setToIdentity();
+
+    shader = buff.shader;
+    qDebug() << "Shader initialized";
+
+    vao = buff.vao;
+    vbo = buff.vbo;
+    ebo = buff.ebo;
+
+    vao->Bind();
+    vao->linkAttribut(*vbo, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0 );
+    vao->linkAttribut(*vbo, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)) );
+    ebo->Bind();
+
+    vao->Unbind();
+    vbo->Unbind();
+    ebo->Unbind();
 }
 
 void Object::addModel(GLuint &uniID)
 {
     f->glUniformMatrix4fv(uniID, 1, GL_FALSE, modelMatrix.constData());
+}
+
+void Object::Draw()
+{
+    shader->Activate();
+    f->glUniformMatrix4fv(uniID, 1, GL_FALSE, modelMatrix.constData());
+    vao->Bind();
+    ebo->Bind(); // Добавьте эту строку
+    f->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+}
+
+object_buff Object::getBuff()
+{
+    return {shader, vbo, vao, ebo};
+}
+
+void Object::printVertices()
+{
+    for (size_t i = 0; i < vertices.size(); i += 6) { // Шаг 6: 3 координаты + 3 цвета
+        qDebug() << "Vertex: "
+                 << vertices[i] << vertices[i + 1] << vertices[i + 2]; // Координаты вершины
+        qDebug() << "Color: "
+                 << vertices[i + 3] << vertices[i + 4] << vertices[i + 5]; // Цвет вершины
+    }
 }
 
 void Object::Box()

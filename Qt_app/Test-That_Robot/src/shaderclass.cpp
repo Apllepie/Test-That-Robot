@@ -92,7 +92,7 @@ void Shader::compileError(unsigned int shader, const char *type)
         }
         }
     else
-        f->glGetProgramiv(shader, GL_COMPILE_STATUS, &hascomplete);
+        f->glGetProgramiv(shader, GL_LINK_STATUS, &hascomplete);
     if(hascomplete == GL_FALSE){
         f->glGetProgramInfoLog(shader, 1024, NULL, log);
         qDebug() <<"SHADER LINKING ERROR FOR: "<< type <<"\n";

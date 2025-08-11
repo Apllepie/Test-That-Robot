@@ -14,102 +14,35 @@ OpenGl::OpenGl(QWidget *parent): QOpenGLWidget(parent)
 
 OpenGl::~OpenGl()
 {
-    shader->Delete();
-    vbo1->Delete();
-    vao1->Delete();
-    ebo1->Delete();
 
-    delete    shader;
-    delete    vbo1;
-    delete    vao1;
-    delete    ebo1;
 
 }
 
 void OpenGl::initializeGL()
 {
     initializeOpenGLFunctions();
-    object = Object(Object::type::TRIANGLE,{1.0f,1.0f,1.0f});
-    object.initialize();
-    //Vertices coordinates
-    // GLfloat vertices[] =
-    //     {   // point                                           // color
-    //         0.0f, float(0.5*sqrt(3)/3), 0.0f,                  0.0f, 1.0f, 0.0f, // upper
-    //         0.5f/2.0, float(-0.5*sqrt(3)/6), 0.0f,             0.0f, 0.0f, 1.0f, // lower right
-    //         -0.5f/2.0f, float(-0.5*sqrt(3)/6), 0.0f,           1.0f, 0.0f, 0.0f,// lower left
-
-    //         0.0f, float(-0.5 * sqrt(3)/6), 0.0f,               0.5f, 0.0f, 0.5f,// inner lower
-    //         -0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f,           0.5f, 0.5f, 0.0f,// inner lower left
-    //         0.5f/4.0f, float(0.5*sqrt(3)/12), 0.0f,            0.0f, 0.5f, 0.5f// inner lower right
-    //     };
-    // GLuint indices[] = { //indices should start from 0
-    //     2,4,3, // lower left triangle
-    //     3,5,1, // lower right triangle
-    //     4,0,5 // upper triangle
-    //     //5,6,4 // inner triangle
-    // };
-    GLfloat vertices[] =
-        {   // point                               // color
-            -0.5f, -0.5f, 0.0f,                     0.0f, 1.0f, 0.0f,
-            -0.5f, 0.5f, 0.0f,                      1.0f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.0,                        0.0f, 1.0f, 0.0f,
-            0.5f, -0.5f, 0.0,                       0.0f, 0.0f, 1.0f
-        };
-        
-    GLuint indices[] = { //indices should start from 0
-        0,2,1,
-        0,2,3
-    };    
+    initDebug();
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     qDebug() << "OpenGL initialized";
 
     camera.Init();
-
-    shader = new Shader(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
-
-     qDebug() << "Shader initialized";
-     
-    vao1 = new VAO;
-    vbo1 = new VBO(object.vertices.data(), object.vertices.size() * sizeof(GLfloat));
-    ebo1 = new EBO(object.indices.data(), object.indices.size() * sizeof(GLuint));
-
-    vao1->Bind();
-    vao1->linkAttribut(*vbo1, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0 );
-    vao1->linkAttribut(*vbo1, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)) );
-    ebo1->Bind();
-
-    vao1->Unbind();
-    vbo1->Unbind();
-    ebo1->Unbind();
-
-    uniID =  glGetUniformLocation(shader->ID, "model");
+    scene.initialize();
    
-
 }
 
 void OpenGl::resizeGL(int w, int h)
 {
-    glViewport(0, 0, w, h);
-    qDebug() << "Resized to" << w << "x" << h;
-    //camera.changeProjection(w, h, 45.0f, 0.1f, 100.0f);
+    scene.resize(w,h);
 }
 void OpenGl::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-    shader->Activate();
-    QMatrix4x4 model;
-    model.setToIdentity();
-    //glUniformMatrix4fv(uniID, 1, GL_FALSE, model.constData());
-    object.addModel(uniID);
-    camera.Activate(shader);
-    vao1->Bind();
-    //glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-    GLenum err;
-while ((err = glGetError()) != GL_NO_ERROR) {
-    qDebug() << "OpenGL error:" << err;
-}
+    clearError();
+    camera.Activate(scene.primitives[0].getBuff().shader);
+    scene.paint();
+
+
+    checkError();
 }
 
 void OpenGl::wheelEvent(QWheelEvent *event)
@@ -149,4 +82,67 @@ void OpenGl::mouseMoveEvent(QMouseEvent *event)
     }
 
     update();
+}
+
+ void OpenGl::clearError()
+{
+    while(glGetError() != GL_NO_ERROR);
+}
+
+ void OpenGl::checkError()
+{
+     while (GLenum err = glGetError() ){
+        qDebug()  <<"[OPENGL ERROR] ("<< err <<")\n";
+     }
+}
+
+void OpenGl::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+{
+    Q_UNUSED(length);
+    Q_UNUSED(userParam);
+
+    QString src;
+    switch (source) {
+    case GL_DEBUG_SOURCE_API: src = "API"; break;
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM: src = "Window System"; break;
+    case GL_DEBUG_SOURCE_SHADER_COMPILER: src = "Shader Compiler"; break;
+    case GL_DEBUG_SOURCE_THIRD_PARTY: src = "Third Party"; break;
+    case GL_DEBUG_SOURCE_APPLICATION: src = "Application"; break;
+    case GL_DEBUG_SOURCE_OTHER: src = "Other"; break;
+    }
+
+    QString tp;
+    switch (type) {
+    case GL_DEBUG_TYPE_ERROR: tp = "Error"; break;
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: tp = "Deprecated Behavior"; break;
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: tp = "Undefined Behavior"; break;
+    case GL_DEBUG_TYPE_PORTABILITY: tp = "Portability"; break;
+    case GL_DEBUG_TYPE_PERFORMANCE: tp = "Performance"; break;
+    case GL_DEBUG_TYPE_MARKER: tp = "Marker"; break;
+    case GL_DEBUG_TYPE_PUSH_GROUP: tp = "Push Group"; break;
+    case GL_DEBUG_TYPE_POP_GROUP: tp = "Pop Group"; break;
+    case GL_DEBUG_TYPE_OTHER: tp = "Other"; break;
+    }
+
+    QString sev;
+    switch (severity) {
+    case GL_DEBUG_SEVERITY_HIGH: sev = "HIGH"; break;
+    case GL_DEBUG_SEVERITY_MEDIUM: sev = "MEDIUM"; break;
+    case GL_DEBUG_SEVERITY_LOW: sev = "LOW"; break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION: sev = "NOTIFICATION"; break;
+    }
+
+    qDebug().noquote() << QString("[OpenGL DEBUG] %1 | %2 | %3 | ID %4 | %5")
+                              .arg(src)
+                              .arg(tp)
+                              .arg(sev)
+                              .arg(id)
+                              .arg(message);
+}
+
+void OpenGl::initDebug()
+{
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(OpenGl::glDebugOutput, nullptr);
 }
