@@ -14,6 +14,7 @@
 #include "VBO.h"
 #include "EBO.h"
 #include "object.h"
+#include "pickingobject.h"
 
 
 class Scene
@@ -24,10 +25,23 @@ public:
     void initialize();
     void resize(int w, int h);
     void paint(Camera& camera);
+    void paintPicking(Camera& camera);
+    void selectObject(int index);
+
     std::vector<Object> primitives;
+
+    Shader *defaultShader;
+    Shader *frameShader;
+    PickingObject picking;
+    int selectedObjectIndex = -1;
+
 private:
+    int w, h;
+
+
     QOpenGLExtraFunctions *f;
     Object object;
+
 
     //grid rendering
     Shader* gridShader = nullptr;

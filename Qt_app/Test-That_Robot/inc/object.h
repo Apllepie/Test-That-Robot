@@ -15,7 +15,6 @@
 
 struct object_buff
 {
-    Shader *shader;
     VBO *vbo;
     VAO *vao;
     EBO *ebo;
@@ -36,22 +35,23 @@ public:
 
 
     QMatrix4x4 modelMatrix;
+    QVector3D pickcolor  {1.0f, 1.0f, 1.0f};
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
     std::vector<GLfloat> Color;
 
+
     //fun
-    void initialize(const char* vertexFile, const char * fragmentFile);
+    void initialize();
     void initialize(object_buff buff);
     void addModel(GLuint &uniID);
-    void Draw();
+    void Draw(Shader *shader);
     object_buff getBuff();
     void printVertices();
 
 private:
     QOpenGLExtraFunctions *f;
 
-    Shader *shader;
     VBO *vbo;
     VAO *vao;
     EBO *ebo;

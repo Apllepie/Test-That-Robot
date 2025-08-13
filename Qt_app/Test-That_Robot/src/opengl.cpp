@@ -30,12 +30,13 @@ void OpenGl::initializeGL()
 
 void OpenGl::resizeGL(int w, int h)
 {
-    scene.resize(w,h);
+    const float dpr = devicePixelRatioF();
+    scene.resize(int(w * dpr), int(h * dpr));
 }
 void OpenGl::paintGL()
 {
     clearError();
-    camera.Activate(scene.primitives[0].getBuff().shader);
+    camera.Activate(scene.defaultShader);
     scene.paint(camera);
     //scene.paint(camera);
 
@@ -56,10 +57,24 @@ void OpenGl::mousePressEvent(QMouseEvent *event)
         rightMousePress = true;
         lastMousePos  = event->pos();
     }
-    if(event->button() == Qt::LeftButton){
+    if(event->button() == Qt::LeftButton) {
         leftMousePress = true;
+        lastMousePos = event->pos();
+
+        const float dpr = devicePixelRatioF();
+        const int px = int(lastMousePos.x() * dpr);
+        const int py = int((height() - lastMousePos.y()) * dpr);
+
+        auto pixel = scene.picking.readPixel(px, py);
+        GLuint pickedID = pixel.r;
+        if (pickedID > 0) scene.selectObject(pickedID - 1);
+        else scene.selectObject(-1);
+
+            qDebug() <<"mouse pos:" <<lastMousePos <<"pick" << pickedID << "\n";
+            pixel.print();
+        }
+    update();
     }
-}
 
 void OpenGl::mouseReleaseEvent(QMouseEvent *event)
 {

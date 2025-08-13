@@ -31,10 +31,7 @@ Object::~Object()
 
 void Object::Destruct()
 {
-    if(shader){
-        shader->Delete();
-        delete shader;
-    }
+
     if(vbo)
     {vbo->Delete();
         delete vbo;
@@ -49,7 +46,7 @@ void Object::Destruct()
     }
 }
 
-void Object::initialize(const char *vertexFile, const char *fragmentFile)
+void Object::initialize()
 {
     QOpenGLContext *context = QOpenGLContext::currentContext();
     if (!context) {
@@ -58,9 +55,6 @@ void Object::initialize(const char *vertexFile, const char *fragmentFile)
     f = context->extraFunctions();
 
     modelMatrix.setToIdentity();
-
-    shader = new Shader(vertexFile, fragmentFile);
-    qDebug() << "Shader initialized";
 
     vao = new VAO;
     vbo = new VBO(vertices.data(), vertices.size() * sizeof(GLfloat));
@@ -75,7 +69,6 @@ void Object::initialize(const char *vertexFile, const char *fragmentFile)
     vbo->Unbind();
     ebo->Unbind();
 
-    uniID =  f->glGetUniformLocation(shader->ID, "model");
 }
 
 void Object::initialize(object_buff buff)
@@ -88,8 +81,6 @@ void Object::initialize(object_buff buff)
 
     modelMatrix.setToIdentity();
 
-    shader = buff.shader;
-    qDebug() << "Shader initialized";
 
     vao = buff.vao;
     vbo = buff.vbo;
@@ -110,18 +101,21 @@ void Object::addModel(GLuint &uniID)
     f->glUniformMatrix4fv(uniID, 1, GL_FALSE, modelMatrix.constData());
 }
 
-void Object::Draw()
+void Object::Draw(Shader *shader)
 {
+    uniID =  f->glGetUniformLocation(shader->ID, "model");
+
     shader->Activate();
-    f->glUniformMatrix4fv(uniID, 1, GL_FALSE, modelMatrix.constData());
+    f->glUniformMatrix4fv(uniID, 1, GL_FALSE, modelMatrix.constData()); //shader need be activated
+
     vao->Bind();
-    ebo->Bind(); // Добавьте эту строку
+    ebo->Bind();
     f->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 object_buff Object::getBuff()
 {
-    return {shader, vbo, vao, ebo};
+    return {vbo, vao, ebo};
 }
 
 void Object::printVertices()
@@ -133,6 +127,7 @@ void Object::printVertices()
                  << vertices[i + 3] << vertices[i + 4] << vertices[i + 5]; // Цвет вершины
     }
 }
+
 
 void Object::Box()
 {

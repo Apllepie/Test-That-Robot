@@ -8,11 +8,13 @@ Scene::~Scene()
         it.Destruct();
     }
 
-    if (gridShader) { delete gridShader; gridShader = nullptr; }
-    if (gridVBO) {gridVBO->Delete(); gridVBO = nullptr;}
-    if (gridVAO) {gridVAO->Delete(); gridVAO = nullptr;}
-    if (axisVBO) {axisVBO->Delete(); axisVBO = nullptr;}
-    if (axisVAO) {axisVAO->Delete(); axisVAO = nullptr;}
+    if(defaultShader){defaultShader->Delete(); delete defaultShader; defaultShader = nullptr; }
+    if(frameShader){frameShader->Delete(); delete frameShader; frameShader = nullptr;}
+    if (gridShader) { gridShader->Delete(); delete gridShader ;gridShader = nullptr; }
+    if (gridVBO) {gridVBO->Delete(); delete gridVBO; gridVBO = nullptr;}
+    if (gridVAO) {gridVAO->Delete(); delete gridVAO; gridVAO = nullptr;}
+    if (axisVBO) {axisVBO->Delete(); delete axisVBO; axisVBO = nullptr;}
+    if (axisVAO) {axisVAO->Delete(); delete axisVAO; axisVAO = nullptr;}
 }
 
 void Scene::initialize()
@@ -23,17 +25,26 @@ void Scene::initialize()
     }
     f = context->extraFunctions();
 
-    primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-    qDebug() <<"objects = " <<primitives.size()<<"\n";
-    primitives[0].initialize(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
-    primitives[0].printVertices();
+    defaultShader = new Shader (":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
+    frameShader = new Shader(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
 
+
+    primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
+    primitives.emplace_back(Object(Object::type::BOX, {1.0f, 0.0f, 1.0f}));
+    qDebug() <<"objects = " <<primitives.size()<<"\n";
+    primitives[0].initialize();
+    primitives[1].initialize(primitives[0].getBuff());
+    //primitives[0].printVertices();
+    primitives[1].modelMatrix.translate(1.0f, 2.0f, 0.0f);
     initGrid();
 
 }
 
 void Scene::resize(int w, int h)
 {
+    this->w = w;
+    this->h = h;
+    picking.init(w,h);
     f->glViewport(0, 0, w, h);
     qDebug() << "Resized to" << w << "x" << h;
     //camera.changeProjection(w, h, 45.0f, 0.1f, 100.0f);
@@ -41,7 +52,12 @@ void Scene::resize(int w, int h)
 
 void Scene::paint(Camera& camera)
 {
-    f->glClear(GL_COLOR_BUFFER_BIT);
+    picking.enableWrite();
+    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    paintPicking(camera);
+    picking.disableWrite();
+
+    f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //drawing grid and axis
     gridShader->Activate();
     camera.Activate(gridShader);
@@ -57,9 +73,45 @@ void Scene::paint(Camera& camera)
     f->glDrawArrays(GL_LINES, 0, axisVertexCount);
     axisVAO->Unbind();
 
-    for (auto& obj : primitives) {
-        //qDebug() << "draw\n";
-        obj.Draw();
+
+
+    for (size_t i = 0; i < primitives.size(); ++i) {
+        defaultShader->Activate();
+        camera.Activate(defaultShader);
+
+        bool isSelected = (static_cast<int>(i) == selectedObjectIndex);
+        GLint loc = f->glGetUniformLocation(defaultShader->ID, "isSelected");
+        f->glUniform1i(loc, isSelected ? 1 : 0);
+
+        primitives[i].Draw(defaultShader);
+    }
+}
+
+void Scene::paintPicking(Camera &camera)
+{
+    GLuint id =0;
+
+    for(auto& obj :primitives){
+        frameShader->Activate();
+        camera.Activate(frameShader);
+
+        GLint loc = f->glGetUniformLocation(frameShader->ID, "objectID");
+        GLint mvp = f->glGetUniformLocation(frameShader->ID, "model");
+        f->glUniform1ui(loc, id+1);
+        f->glUniformMatrix4fv(mvp,1, GL_FALSE, obj.modelMatrix.constData());
+
+
+        obj.Draw(frameShader);
+        id++;
+    }
+}
+
+void Scene::selectObject(int index)
+{
+    if (index >= 0 && index < static_cast<int>(primitives.size())) {
+        selectedObjectIndex = index;
+    } else {
+        selectedObjectIndex = -1;
     }
 }
 

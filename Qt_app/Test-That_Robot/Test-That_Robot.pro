@@ -15,6 +15,7 @@ SOURCES += \
     src/mainwindow.cpp \
     src/object.cpp \
     src/opengl.cpp \
+    src/pickingobject.cpp \
     src/scene.cpp \
     src/shaderclass.cpp \
     src/vao.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     inc/mainwindow.h \
     inc/object.h \
     inc/opengl.h \
+    inc/pickingobject.h \
     inc/scene.h \
     inc/shaderclass.h \
     inc/vao.h \

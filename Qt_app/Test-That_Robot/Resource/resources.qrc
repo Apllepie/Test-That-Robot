@@ -23,5 +23,7 @@
         <file>shaders/default.vert</file>
         <file>shaders/grid.frag</file>
         <file>shaders/grid.vert</file>
+        <file>shaders/pick.frag</file>
+        <file>shaders/pick.vert</file>
     </qresource>
 </RCC>

@@ -32,7 +32,9 @@ void Camera::Activate(Shader *shader)
 
 void Camera::changeProjection(int w, int h, float angle, float start, float end)
 {
-    projection.perspective(angle, float(w/h), start, end);
+    const float aspect = float(w) / float((h > 0) ? h : 1);
+    projection.setToIdentity();
+    projection.perspective(angle, aspect, start, end);
 }
 
 void Camera::moveCloser_Away(float delta)
