@@ -22,6 +22,7 @@ public:
     void changeProjection(int w, int h, float angle, float start, float end);
     void moveCloser_Away(float delta);
     void Move(QPoint delta);
+    float getZpos();
 private:
     QOpenGLExtraFunctions *f;
     QMatrix4x4 view;

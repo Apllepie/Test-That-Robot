@@ -29,7 +29,7 @@ public:
     void selectObject(int index);
     void translateObject(float x, float y, Camera &camera);
 
-    
+
 
     std::vector<Object> primitives;
 
@@ -38,7 +38,7 @@ public:
     PickingObject picking;
     int selectedObjectIndex = -1;
 
-    
+
 
 private:
     int w, h;

@@ -54,3 +54,8 @@ void Camera::Move(QPoint delta)
     view.setToIdentity();
     view.lookAt(camPos, whereLook, whereUp);
 }
+
+float Camera::getZpos()
+{
+    return camPos.z();
+}

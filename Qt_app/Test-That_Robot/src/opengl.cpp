@@ -93,6 +93,13 @@ void OpenGl::mouseMoveEvent(QMouseEvent *event)
         lastMousePos = event->pos();
         camera.Move(delta);
     }
+    if(leftMousePress){
+        const float dpr = devicePixelRatioF();
+        const QPoint delta = (event->pos()-lastMousePos) * dpr;
+        lastMousePos = event->pos();
+
+        scene.translateObject(delta.x(), -delta.y(), camera);
+    }
 
     update();
 }
