@@ -6,7 +6,7 @@
 
 OpenGl::OpenGl(QWidget *parent): QOpenGLWidget(parent)
 {
-
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 OpenGl::~OpenGl()
@@ -25,7 +25,7 @@ void OpenGl::initializeGL()
 
     camera.Init();
     scene.initialize();
-   
+
 }
 
 void OpenGl::resizeGL(int w, int h)
@@ -104,6 +104,15 @@ void OpenGl::mouseMoveEvent(QMouseEvent *event)
     update();
 }
 
+void OpenGl::keyPressEvent(QKeyEvent *event)
+{
+    if(event->key() == Qt::Key_Backspace or event->key() == Qt::Key_Delete){
+        qDebug() << "pressed backspace or delete\n";
+        scene.deleteObject();
+    }
+    update();
+}
+
  void OpenGl::clearError()
 {
     while(glGetError() != GL_NO_ERROR);
@@ -165,4 +174,10 @@ void OpenGl::initDebug()
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
     glDebugMessageCallback(OpenGl::glDebugOutput, nullptr);
+}
+
+void OpenGl::addingBox()
+{
+    scene.addBox();
+    update();
 }

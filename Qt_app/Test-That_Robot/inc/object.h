@@ -32,6 +32,7 @@ public:
     ~Object();
 
     void Destruct();
+    void clear();
 
 
     QMatrix4x4 modelMatrix;

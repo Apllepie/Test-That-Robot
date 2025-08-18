@@ -11,8 +11,6 @@
 #include "camera.h"
 #include "shaderclass.h"
 #include "VAO.h"
-#include "VBO.h"
-#include "EBO.h"
 #include "object.h"
 #include "pickingobject.h"
 
@@ -28,7 +26,8 @@ public:
     void paintPicking(Camera& camera);
     void selectObject(int index);
     void translateObject(float x, float y, Camera &camera);
-
+    void addBox();
+    void deleteObject();
     
 
     std::vector<Object> primitives;

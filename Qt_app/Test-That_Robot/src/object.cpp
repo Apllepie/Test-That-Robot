@@ -23,27 +23,26 @@ Object::Object(type TYPE,  std::vector<GLfloat> Color): Color{Color}
     printVertices();
 }
 
-Object::~Object()
-{
-
-
+Object::~Object() {
+   // Destruct();
 }
 
 void Object::Destruct()
 {
+    if (vbo) { vbo->Delete(); //delete vbo; vbo = nullptr;
+    }
+    if (vao) { vao->Delete(); //delete vao; vao = nullptr;
+    }
+    if (ebo) { ebo->Delete(); //delete ebo; ebo = nullptr;
+    }
+}
 
-    if(vbo)
-    {vbo->Delete();
-        delete vbo;
-    }
-    if(vao)
-    {vao->Delete();
-        delete vao;
-    }
-    if(ebo)
-    {ebo->Delete();
-        delete ebo;
-    }
+void Object::clear()
+{
+    vbo = nullptr;
+    ebo = nullptr;
+    vao = nullptr;
+
 }
 
 void Object::initialize()

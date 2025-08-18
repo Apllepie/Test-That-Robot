@@ -4,9 +4,13 @@ Scene::Scene() {}
 
 Scene::~Scene()
 {
-    for (auto it : primitives){
-        it.Destruct();
-    }
+    // Старый код (приводил к копированию и двойному удалению):
+    // for (auto it : primitives){
+    //     it.Destruct();
+    // }
+
+    // Просто позволяем вектору разрушить объекты (RAII).
+    primitives.clear();
 
     if(defaultShader){defaultShader->Delete(); delete defaultShader; defaultShader = nullptr; }
     if(frameShader){frameShader->Delete(); delete frameShader; frameShader = nullptr;}
@@ -29,13 +33,14 @@ void Scene::initialize()
     frameShader = new Shader(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
 
 
-    primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-    primitives.emplace_back(Object(Object::type::BOX, {1.0f, 0.0f, 1.0f}));
-    qDebug() <<"objects = " <<primitives.size()<<"\n";
-    primitives[0].initialize();
-    primitives[1].initialize(primitives[0].getBuff());
-    //primitives[0].printVertices();
-    primitives[1].modelMatrix.translate(1.0f, 2.0f, 0.0f);
+    // primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
+    // primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
+    // qDebug() <<"objects = " <<primitives.size()<<"\n";
+    // primitives[0].initialize();
+    // primitives[1].initialize(primitives[0].getBuff());
+    // //primitives[0].printVertices();
+    // primitives[1].modelMatrix.translate(1.0f, 2.0f, 0.0f);
+    addBox();
     initGrid();
 
 }
@@ -116,13 +121,42 @@ void Scene::selectObject(int index)
     qDebug() << "selected " << selectedObjectIndex;
 }
 
-void Scene::translateObject(float x, float y, Camera & camera)
-{
-    if(selectedObjectIndex != -1){
+void Scene::translateObject(float x, float y, Camera & camera){
+
+    if(selectedObjectIndex == -1) return;
+
         float speed = camera.getZpos() * 0.0011f;
         primitives[selectedObjectIndex].modelMatrix.translate(x*speed, y*speed, 0.0f);
+
+}
+
+void Scene::addBox()
+{
+    if(primitives.empty()){
+        primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
+        primitives[0].initialize();
+    }
+    else{
+        primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
+        primitives.back().initialize(primitives[0].getBuff());
     }
 }
+
+
+void Scene::deleteObject()
+{
+    if(selectedObjectIndex == -1) return;
+
+    if(primitives.size() == 1){
+       // primitives.front().clear();
+
+        primitives.clear();
+    } else {
+        primitives.erase(primitives.begin() + selectedObjectIndex);
+    }
+    selectedObjectIndex = -1;
+}
+
 
 
 

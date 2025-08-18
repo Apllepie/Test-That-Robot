@@ -36,6 +36,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
     void clearError();
     void checkError();
 
@@ -58,6 +59,8 @@ private:
                                        const void *userParam);
     void initDebug();
 
+    public slots:
+    void addingBox();
 
 };
 
