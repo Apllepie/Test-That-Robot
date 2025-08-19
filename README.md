@@ -41,8 +41,35 @@ The main goal is to add the ability to create and visualize a simple box (obstac
 This will be the foundation for further development of the visualization module and for representing obstacles and robot movement.
 
 **Planned actions:**
-- Create basic UI for app
-- Integrate an OpenGL widget into the environment.
-- Implement basic functionality to add and display a box.
-- Create basic UI for adding and manipulating the box.
-- Test rendering and interaction with the box object.
+- Create basic UI for app [x]
+- Integrate an OpenGL widget into the environment.[x]
+- Implement basic functionality to add and display a box.[x]
+- Create basic UI for adding and manipulating the box.[x]
+- Test rendering and interaction with the box object.[x]
+
+### 
+
+Robot introduction milestone: add the first robot entity to the OpenGL scene (visual mesh + basic kinematic/physics placeholder).
+
+**its_alawe Objectives**
+- Visual presence of a robot
+- Updatable pose (x, y, theta)
+- Interface for control algorithms to set velocities
+
+**Planned Actions**
+- [ ] Create robot mesh (start with simple box or cylinder; later refined)
+- [ ] Define robot pose structure (position, orientation; world frame documented)
+- [ ] Integrate mesh into render loop (reuse existing shaders / buffers)
+- [ ] Implement basic holonomic kinematics (apply vx, vy, omega per tick)
+- [ ] Add simple physics placeholder (velocity limits, optional damping)
+- [ ] Expose control hook (temporary UI fields or stub algorithm callback)
+- [ ] Generate AABB from mesh for future collision checks
+- [ ] Update README with coordinate frame + units
+
+**Acceptance Criteria**
+- Robot appears in scene at default pose
+- Pose updates smoothly when velocities change
+- Frame resize / redraw works without artifacts
+- Code separated (e.g., robot/Robot.h|cpp or robot.py)
+- Single control entry point (setVelocity / update(dt))
+- No runtime GL errors in debug/log
