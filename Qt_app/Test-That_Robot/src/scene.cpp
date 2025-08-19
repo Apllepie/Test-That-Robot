@@ -4,21 +4,18 @@ Scene::Scene() {}
 
 Scene::~Scene()
 {
-    // Старый код (приводил к копированию и двойному удалению):
-    // for (auto it : primitives){
-    //     it.Destruct();
-    // }
-
-    // Просто позволяем вектору разрушить объекты (RAII).
     primitives.clear();
 
     if(defaultShader){defaultShader->Delete(); delete defaultShader; defaultShader = nullptr; }
     if(frameShader){frameShader->Delete(); delete frameShader; frameShader = nullptr;}
     if (gridShader) { gridShader->Delete(); delete gridShader ;gridShader = nullptr; }
-    if (gridVBO) {gridVBO->Delete(); delete gridVBO; gridVBO = nullptr;}
-    if (gridVAO) {gridVAO->Delete(); delete gridVAO; gridVAO = nullptr;}
-    if (axisVBO) {axisVBO->Delete(); delete axisVBO; axisVBO = nullptr;}
-    if (axisVAO) {axisVAO->Delete(); delete axisVAO; axisVAO = nullptr;}
+
+    gridVBO.Delete();
+    gridVAO.Delete();
+    axisVBO.Delete();
+    axisVAO.Delete();
+
+    delete box;
 }
 
 void Scene::initialize()
@@ -31,15 +28,9 @@ void Scene::initialize()
 
     defaultShader = new Shader (":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
     frameShader = new Shader(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
-
-
-    // primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-    // primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-    // qDebug() <<"objects = " <<primitives.size()<<"\n";
-    // primitives[0].initialize();
-    // primitives[1].initialize(primitives[0].getBuff());
-    // //primitives[0].printVertices();
-    // primitives[1].modelMatrix.translate(1.0f, 2.0f, 0.0f);
+    box = new Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f});
+    box->Init();
+    primitives.reserve(128);
     addBox();
     initGrid();
 
@@ -69,14 +60,14 @@ void Scene::paint(Camera& camera)
     QMatrix4x4 gridModel; gridModel.setToIdentity();
     GLint uModel = f->glGetUniformLocation(gridShader->ID, "model");
     f->glUniformMatrix4fv(uModel, 1, GL_FALSE, gridModel.constData());
-    gridVAO->Bind();
+    gridVAO.Bind();
     f->glLineWidth(0.5f);
     f->glDrawArrays(GL_LINES, 0, gridVertexCount);
-    gridVAO->Unbind();
-    axisVAO->Bind();
+    gridVAO.Unbind();
+    axisVAO.Bind();
     f->glLineWidth(1.0f);
     f->glDrawArrays(GL_LINES, 0, axisVertexCount);
-    axisVAO->Unbind();
+    axisVAO.Unbind();
 
 
 
@@ -132,14 +123,8 @@ void Scene::translateObject(float x, float y, Camera & camera){
 
 void Scene::addBox()
 {
-    if(primitives.empty()){
-        primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-        primitives[0].initialize();
-    }
-    else{
-        primitives.emplace_back(Object(Object::type::BOX, {1.0f, 1.0f, 1.0f}));
-        primitives.back().initialize(primitives[0].getBuff());
-    }
+    primitives.emplace_back(Object(box));
+    primitives.back().initialize();
 }
 
 
@@ -180,14 +165,14 @@ void Scene::initGrid()
     for (float y = -size; y <= size + 1e-4f; y += step)
         addLine(-size, y,  size, y, 0.4f,0.4f,0.4f);
     gridVertexCount = static_cast<GLsizei>(grid.size() / 6);
-    gridVAO = new VAO();
-    gridVBO = new VBO(grid.data(), grid.size() * sizeof(GLfloat));
-    gridVAO->Bind();
-    gridVAO->linkAttribut(*gridVBO, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0);
-    gridVAO->linkAttribut(*gridVBO, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)));
+    gridVAO.Init();
+    gridVBO.Init(grid.data(), grid.size() * sizeof(GLfloat));
+    gridVAO.Bind();
+    gridVAO.linkAttribut(gridVBO, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0);
+    gridVAO.linkAttribut(gridVBO, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)));
 
-    gridVAO->Unbind();
-    gridVBO->Unbind();
+    gridVAO.Unbind();
+    gridVBO.Unbind();
 
     // 2) axes red y green x
     std::vector<GLfloat> axes;
@@ -197,14 +182,13 @@ void Scene::initGrid()
     addAxis(-size, 0, size, 0, 1.0f,0.1f,0.1f); // X
     addAxis(0, -size, 0, size, 0.1f,1.0f,0.1f); // Y
     axisVertexCount = static_cast<GLsizei>(axes.size() / 6);
-    axisVAO = new VAO();
-    axisVBO = new VBO(axes.data(), axes.size() * sizeof(GLfloat));
-    axisVAO->Bind();
-    axisVAO->linkAttribut(*axisVBO, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0);
-    axisVAO->linkAttribut(*axisVBO, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)));
+    axisVAO.Init();
+    axisVBO.Init(axes.data(), axes.size() * sizeof(GLfloat));
+    axisVAO.Bind();
+    axisVAO.linkAttribut(axisVBO, 0, 3, GL_FLOAT, 6*sizeof(float), (void*)0);
+    axisVAO.linkAttribut(axisVBO, 1, 3, GL_FLOAT, 6*sizeof(float), (void*)(3*sizeof(float)));
 
-    axisVAO->Unbind();
-    axisVBO->Unbind();
-    
-   
+    axisVAO.Unbind();
+    axisVBO.Unbind();
+
 }

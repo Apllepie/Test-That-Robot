@@ -9,58 +9,41 @@
 #include <QMatrix4x4>
 
 #include "shaderclass.h"
-#include "vbo.h"
-#include "vao.h"
-#include "ebo.h"
+#include "mesh.h"
 
-struct object_buff
-{
-    VBO *vbo;
-    VAO *vao;
-    EBO *ebo;
-};
 
 class Object
 {
 public:
-    enum class type {BOX, TRIANGLE};
-
     Object();
-    Object(std::vector<GLfloat> vertices, std::vector<GLuint> indices, std::vector<GLfloat> Color );
-    Object(type TYPE, std::vector<GLfloat> Color);
-
+    Object(Mesh *mesh);
     ~Object();
 
-    void Destruct();
-    void clear();
+
 
 
     QMatrix4x4 modelMatrix;
-    QVector3D pickcolor  {1.0f, 1.0f, 1.0f};
-    std::vector<GLfloat> vertices;
-    std::vector<GLuint> indices;
+    QMatrix4x4 scaleMatrix;
+    QMatrix4x4 transMatrix;
+    QMatrix4x4 ZrotateMatrix;
+    QMatrix4x4 XrotateMatrix;
+    QMatrix4x4 YrotateMatrix;
+
+
     std::vector<GLfloat> Color;
 
-
+    Mesh *mesh;
     //fun
     void initialize();
-    void initialize(object_buff buff);
     void addModel(GLuint &uniID);
     void Draw(Shader *shader);
-    object_buff getBuff();
-    void printVertices();
 
 private:
     QOpenGLExtraFunctions *f;
 
-    VBO *vbo;
-    VAO *vao;
-    EBO *ebo;
+
     GLuint uniID;
 
-    void Box();
-    void Triangle();
-    void addColor();
 
 };
 

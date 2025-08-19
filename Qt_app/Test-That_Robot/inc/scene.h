@@ -30,6 +30,7 @@ public:
     void deleteObject();
     
 
+    Mesh *box;
     std::vector<Object> primitives;
 
     Shader *defaultShader;
@@ -49,12 +50,12 @@ private:
 
     //grid rendering
     Shader* gridShader = nullptr;
-    VAO *gridVAO;
-    VBO *gridVBO;
+    VAO gridVAO;
+    VBO gridVBO;
     GLsizei gridVertexCount = 0;
 
-    VAO *axisVAO;
-    VBO *axisVBO;
+    VAO axisVAO;
+    VBO axisVBO;
     GLsizei axisVertexCount = 0;
 
 

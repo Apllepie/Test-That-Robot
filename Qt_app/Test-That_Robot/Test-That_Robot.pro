@@ -13,6 +13,7 @@ SOURCES += \
     src/ebo.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
+    src/mesh.cpp \
     src/object.cpp \
     src/opengl.cpp \
     src/pickingobject.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     inc/camera.h \
     inc/ebo.h \
     inc/mainwindow.h \
+    inc/mesh.h \
     inc/object.h \
     inc/opengl.h \
     inc/pickingobject.h \

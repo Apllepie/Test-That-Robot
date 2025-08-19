@@ -1,6 +1,17 @@
 #include "vao.h"
 
 VAO::VAO() {
+
+
+}
+
+VAO::~VAO()
+{
+
+}
+
+void VAO::Init()
+{
     QOpenGLContext *context = QOpenGLContext::currentContext();
     if (!context) {
         qFatal("No current OpenGL context");
@@ -8,12 +19,6 @@ VAO::VAO() {
     f = context->extraFunctions();
 
     f->glGenVertexArrays(1, &ID);
-
-}
-
-VAO::~VAO()
-{
-
 }
 
 void VAO::linkAttribut(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void * offset)

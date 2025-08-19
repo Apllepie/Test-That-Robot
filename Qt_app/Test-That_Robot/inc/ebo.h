@@ -12,12 +12,12 @@ class EBO
 {
 public:
     EBO();
-    EBO(GLuint * indices, GLsizeiptr size );
     ~EBO();
 
     GLuint ID;
 
     //fun
+    void Init(GLuint * indices, GLsizeiptr size );
     void Bind();
     void Unbind();
     void Delete();

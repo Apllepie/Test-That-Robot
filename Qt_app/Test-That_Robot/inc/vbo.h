@@ -12,15 +12,15 @@ class VBO
 {
 public:
     VBO();
-    VBO(GLfloat * vertices, GLsizeiptr size );
     ~VBO();
 
-        GLuint ID;
+    GLuint ID;
 
-        //fun
-        void Bind();
-        void Unbind();
-        void Delete();
+    //fun
+    void Init(GLfloat * vertices, GLsizeiptr size );
+    void Bind();
+    void Unbind();
+    void Delete();
 
 
 private:

@@ -22,6 +22,7 @@ public:
     GLuint ID;
 
     //
+    void Init();
     void Bind();
     void Unbind();
     void Delete();
