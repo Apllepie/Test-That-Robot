@@ -117,7 +117,7 @@ void Scene::translateObject(float x, float y, Camera & camera){
     if(selectedObjectIndex == -1) return;
 
         float speed = camera.getZpos() * 0.0011f;
-        primitives[selectedObjectIndex].modelMatrix.translate(x*speed, y*speed, 0.0f);
+        primitives[selectedObjectIndex].Translate(x*speed, y*speed, 0.0f);
 
 }
 

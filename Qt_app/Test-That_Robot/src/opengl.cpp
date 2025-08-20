@@ -46,9 +46,19 @@ void OpenGl::paintGL()
 
 void OpenGl::wheelEvent(QWheelEvent *event)
 {
-        float delta = event->angleDelta().y() / 120.0f;
+    float delta = event->angleDelta().y() / 120.0f;
+
+        if(leftMousePress == true){
+            if(scene.selectedObjectIndex != -1){
+                scene.primitives[scene.selectedObjectIndex].Scale(-delta*1.2f, -delta*1.2f, 0.0f);
+            }
+        }
+        else{
+
         camera.moveCloser_Away(-delta);
+        }
         update();
+
 }
 
 void OpenGl::mousePressEvent(QMouseEvent *event)

@@ -37,6 +37,11 @@ public:
     void initialize();
     void addModel(GLuint &uniID);
     void Draw(Shader *shader);
+    void Translate(float x, float y, float z);
+    void Scale(float x, float y, float z);
+    void RotateZ(float theta);
+    void RotateY(float theta);
+    void RotateX(float theta);
 
 private:
     QOpenGLExtraFunctions *f;
@@ -44,7 +49,8 @@ private:
 
     GLuint uniID;
 
-
+    //fun
+    QMatrix4x4 MakeModelMatrix();
 };
 
 #endif // OBJECT_H
