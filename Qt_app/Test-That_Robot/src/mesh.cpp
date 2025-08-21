@@ -5,6 +5,12 @@ Mesh::Mesh()
 
 }
 
+Mesh::Mesh(std::vector<GLfloat> vertices, std::vector<GLuint> indices):
+    vertices{vertices}, indices{indices}
+{
+
+}
+
 Mesh::Mesh(type type, std::vector<GLfloat> color)
 {
     if(type == Mesh::type::BOX){

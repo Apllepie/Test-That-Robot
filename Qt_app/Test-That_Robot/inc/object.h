@@ -43,6 +43,7 @@ public:
     void RotateY(float theta);
     void RotateX(float theta);
 
+     QMatrix4x4 updateModelMatrix();
 private:
     QOpenGLExtraFunctions *f;
 
@@ -50,7 +51,7 @@ private:
     GLuint uniID;
 
     //fun
-    QMatrix4x4 MakeModelMatrix();
+
 };
 
 #endif // OBJECT_H

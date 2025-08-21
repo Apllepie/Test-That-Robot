@@ -41,24 +41,24 @@ The main goal is to add the ability to create and visualize a simple box (obstac
 This will be the foundation for further development of the visualization module and for representing obstacles and robot movement.
 
 **Planned actions:**
-- Create basic UI for app [x]
-- Integrate an OpenGL widget into the environment.[x]
-- Implement basic functionality to add and display a box.[x]
-- Create basic UI for adding and manipulating the box.[x]
-- Test rendering and interaction with the box object.[x]
+- [x] Create basic UI for app 
+- [x] Integrate an OpenGL widget into the environment.
+- [x] Implement basic functionality to add and display a box.
+- [x] Create basic UI for adding and manipulating the box.
+- [x] Test rendering and interaction with the box object.
 
 ### 
 
 Robot introduction milestone: add the first robot entity to the OpenGL scene (visual mesh + basic kinematic/physics placeholder).
 
-**its_alawe Objectives**
+**its_alive Objectives**
 - Visual presence of a robot
 - Updatable pose (x, y, theta)
 - Interface for control algorithms to set velocities
 
 **Planned Actions**
-- [ ] Create robot mesh (start with simple box or cylinder; later refined)
-- [ ] Define robot pose structure (position, orientation; world frame documented)
+- [x] Create robot mesh (start with simple triangle; )
+- [x] Define robot pose structure (position, orientation; world frame documented)
 - [ ] Integrate mesh into render loop (reuse existing shaders / buffers)
 - [ ] Implement basic holonomic kinematics (apply vx, vy, omega per tick)
 - [ ] Add simple physics placeholder (velocity limits, optional damping)

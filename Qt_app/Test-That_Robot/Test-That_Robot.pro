@@ -17,6 +17,7 @@ SOURCES += \
     src/object.cpp \
     src/opengl.cpp \
     src/pickingobject.cpp \
+    src/robot.cpp \
     src/scene.cpp \
     src/shaderclass.cpp \
     src/vao.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     inc/object.h \
     inc/opengl.h \
     inc/pickingobject.h \
+    inc/robot.h \
     inc/scene.h \
     inc/shaderclass.h \
     inc/vao.h \

@@ -13,6 +13,7 @@
 #include "VAO.h"
 #include "object.h"
 #include "pickingobject.h"
+#include "robot.h"
 
 
 class Scene
@@ -31,6 +32,9 @@ public:
     
 
     Mesh *box;
+    Mesh *robot_mesh;
+    Robot robot;
+
     std::vector<Object> primitives;
 
     Shader *defaultShader;

@@ -16,6 +16,7 @@ Scene::~Scene()
     axisVAO.Delete();
 
     delete box;
+    delete robot_mesh;
 }
 
 void Scene::initialize()
@@ -30,7 +31,21 @@ void Scene::initialize()
     frameShader = new Shader(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
     box = new Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f});
     box->Init();
+     robot_mesh = new Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
+                  -0.4f, 0.4f, 0.0f,             1.0f, 0.0f, 1.0f,
+                   0.4f, 0.4f, 0.0,               1.0f, 0.0f, 1.0f,
+                   0.4f, -0.4f, 0.0,              1.0f, 0.0f, 1.0f,
+                     0.0f, float(0.3*sqrt(3)/3), 0.0f, 1.0f, 1.0f, 0.0f,
+                     0.3f/2.0, float(-0.3*sqrt(3)/6), 0.0f, 1.0f, 1.0f, 0.0f,
+                        -0.3f/2.0f, float(-0.3*sqrt(3)/6), 0.0f, 1.0f, 1.0f, 0.0f},{0,1,2,2,0,3,4,5,6 });
+
+    robot_mesh->Init();
+
+   // robot = Robot(robot_mesh);
+   // robot.initialize();
     primitives.reserve(128);
+    primitives.emplace_back(Robot(robot_mesh));
+    primitives.back().initialize();
     addBox();
     initGrid();
 
@@ -81,6 +96,8 @@ void Scene::paint(Camera& camera)
 
         primitives[i].Draw(defaultShader);
     }
+
+
 }
 
 void Scene::paintPicking(Camera &camera)

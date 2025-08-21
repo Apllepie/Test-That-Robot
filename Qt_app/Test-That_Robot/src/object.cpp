@@ -15,7 +15,7 @@ Object::Object(Mesh *mesh):mesh{mesh}
     XrotateMatrix.setToIdentity();
     transMatrix.setToIdentity();
 
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
 Object::~Object() {
@@ -53,7 +53,7 @@ void Object::Draw(Shader *shader)
 void Object::Translate(float x, float y, float z)
 {
     transMatrix.translate(x, y, z);
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
 void Object::Scale(float x, float y, float z)
@@ -67,32 +67,32 @@ void Object::Scale(float x, float y, float z)
 
     scaleMatrix.scale(x, y, z);
 
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
 void Object::RotateZ(float theta)
 {
     ZrotateMatrix.rotate(theta, 0,0,1);
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
 void Object::RotateY(float theta)
 {
     YrotateMatrix.rotate(theta, 0,1,0);
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
 void Object::RotateX(float theta)
 {
     XrotateMatrix.rotate(theta, 1,0,0);
-    modelMatrix = MakeModelMatrix();
+    modelMatrix = updateModelMatrix();
 }
 
-QMatrix4x4 Object::MakeModelMatrix()
+QMatrix4x4 Object::updateModelMatrix()
 {
-    return  transMatrix * XrotateMatrix * YrotateMatrix * ZrotateMatrix * scaleMatrix;
-
+ return transMatrix * XrotateMatrix * YrotateMatrix * ZrotateMatrix * scaleMatrix;
 }
+
 
 
 

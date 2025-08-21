@@ -19,6 +19,7 @@ class Mesh
 public:
     enum type {BOX, TRIANGLE};
     Mesh();
+    Mesh(std::vector<GLfloat> vertices, std::vector<GLuint>indices);
     Mesh(type type, std::vector<GLfloat> color);
 
 
