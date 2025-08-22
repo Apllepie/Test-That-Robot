@@ -4,7 +4,9 @@
 #include <QDebug>
 #include <math.h>
 
-OpenGl::OpenGl(QWidget *parent): QOpenGLWidget(parent)
+OpenGl::OpenGl(QWidget *parent)
+    : QOpenGLWidget(parent)
+    , input(&camera, &scene)
 {
     setFocusPolicy(Qt::StrongFocus);
 }
@@ -15,22 +17,25 @@ OpenGl::~OpenGl()
 
 }
 
+float OpenGl::getDpr()
+{
+    return devicePixelRatioF();
+}
+
 void OpenGl::initializeGL()
 {
     initializeOpenGLFunctions();
     initDebug();
-
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     qDebug() << "OpenGL initialized";
-
     camera.Init();
     scene.initialize();
-
+    // Удалено: input = InputController(&camera,&scene);
 }
 
 void OpenGl::resizeGL(int w, int h)
 {
-    const float dpr = devicePixelRatioF();
+    dpr =  devicePixelRatioF();
     scene.resize(int(w * dpr), int(h * dpr));
 }
 void OpenGl::paintGL()
@@ -46,80 +51,31 @@ void OpenGl::paintGL()
 
 void OpenGl::wheelEvent(QWheelEvent *event)
 {
-    float delta = event->angleDelta().y() / 120.0f;
-
-        if(leftMousePress == true){
-            if(scene.selectedObjectIndex != -1){
-                scene.primitives[scene.selectedObjectIndex].Scale(-delta*1.2f, -delta*1.2f, 0.0f);
-            }
-        }
-        else{
-
-        camera.moveCloser_Away(-delta);
-        }
-        update();
-
+    input.wheel(event);
+    update();
 }
 
 void OpenGl::mousePressEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::RightButton){
-        rightMousePress = true;
-        lastMousePos  = event->pos();
-    }
-    if(event->button() == Qt::LeftButton) {
-        leftMousePress = true;
-        lastMousePos = event->pos();
-
-        const float dpr = devicePixelRatioF();
-        const int px = int(lastMousePos.x() * dpr);
-        const int py = int((height() - lastMousePos.y()) * dpr);
-
-        auto pixel = scene.picking.readPixel(px, py);
-        GLuint pickedID = pixel.r;
-        if (pickedID > 0) scene.selectObject(pickedID - 1);
-        else scene.selectObject(-1);
-
-            qDebug() <<"mouse pos:" <<lastMousePos <<"pick" << pickedID << "\n";
-            pixel.print();
-        }
+    input.mousePress(event, devicePixelRatioF(), height());
     update();
-    }
+}
 
 void OpenGl::mouseReleaseEvent(QMouseEvent *event)
 {
-    if(event->button() == Qt::RightButton){
-        rightMousePress = false;
-    }
-    if(event->button() == Qt::LeftButton){
-        leftMousePress = false;
-    }
+
+    input.mouseRelease(event);
 }
 
 void OpenGl::mouseMoveEvent(QMouseEvent *event)
 {
-    if(rightMousePress){
-        QPoint delta = event->pos() - lastMousePos;
-        lastMousePos = event->pos();
-        camera.Move(delta);
-    }
-    if(leftMousePress){
-        const float dpr = devicePixelRatioF();
-        const QPoint delta = (event->pos()-lastMousePos) * dpr;
-        lastMousePos = event->pos();
-
-        scene.translateObject(delta.x(), -delta.y(), camera);
-    }
-
+    input.mouseMove(event);
     update();
 }
 
 void OpenGl::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() == Qt::Key_Backspace or event->key() == Qt::Key_Delete){
-        qDebug() << "pressed backspace or delete\n";
-        scene.deleteObject();
-    }
+    input.keyPress(event);
     update();
 }
 

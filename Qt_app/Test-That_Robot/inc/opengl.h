@@ -18,6 +18,7 @@
 
 #include "camera.h"
 #include "scene.h"
+#include "inputcontroller.h"
 
 
 class OpenGl : public QOpenGLWidget, protected QOpenGLExtraFunctions
@@ -28,7 +29,11 @@ public:
     explicit OpenGl(QWidget *parent = nullptr);
     ~OpenGl();
 
+    float getDpr();
+
 protected:
+    InputController input;
+
     void initializeGL() ;
     void resizeGL(int w, int h) ;
     void paintGL() ;
@@ -44,10 +49,13 @@ protected:
     Scene scene;
     Camera camera;
 
+
     bool rightMousePress = false;
     bool leftMousePress = false;
     QPoint lastMousePos;
     Object object;
+    float dpr;
+
 
 private:
     static void APIENTRY glDebugOutput(GLenum source,

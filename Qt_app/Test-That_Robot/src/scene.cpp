@@ -133,8 +133,8 @@ void Scene::translateObject(float x, float y, Camera & camera){
 
     if(selectedObjectIndex == -1) return;
 
-        float speed = camera.getZpos() * 0.0011f;
-        primitives[selectedObjectIndex].Translate(x*speed, y*speed, 0.0f);
+         float speed = camera.getZpos() * 0.0011f;
+         primitives[selectedObjectIndex].Translate(x*speed, y*speed, 0.0f);
 
 }
 
@@ -157,6 +157,11 @@ void Scene::deleteObject()
         primitives.erase(primitives.begin() + selectedObjectIndex);
     }
     selectedObjectIndex = -1;
+}
+
+QVector2D Scene::getWindowSize()
+{
+    return QVector2D(w, h);
 }
 
 

@@ -16,6 +16,8 @@ class Camera
 {
 public:
     Camera();
+    QMatrix4x4 view;
+    QMatrix4x4 projection;
 
     void Init();
     void Activate(Shader *shader);
@@ -25,8 +27,7 @@ public:
     float getZpos();
 private:
     QOpenGLExtraFunctions *f;
-    QMatrix4x4 view;
-    QMatrix4x4 projection;
+
 
     QVector3D camPos;
     QVector3D whereLook;

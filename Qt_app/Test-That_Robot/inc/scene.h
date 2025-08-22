@@ -29,7 +29,7 @@ public:
     void translateObject(float x, float y, Camera &camera);
     void addBox();
     void deleteObject();
-    
+    QVector2D getWindowSize();
 
     Mesh *box;
     Mesh *robot_mesh;
@@ -42,7 +42,6 @@ public:
     PickingObject picking;
     int selectedObjectIndex = -1;
 
-    
 
 private:
     int w, h;

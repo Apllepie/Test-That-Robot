@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     src/camera.cpp \
     src/ebo.cpp \
+    src/inputcontroller.cpp \
     src/main.cpp \
     src/mainwindow.cpp \
     src/mesh.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 HEADERS += \
     inc/camera.h \
     inc/ebo.h \
+    inc/inputcontroller.h \
     inc/mainwindow.h \
     inc/mesh.h \
     inc/object.h \
