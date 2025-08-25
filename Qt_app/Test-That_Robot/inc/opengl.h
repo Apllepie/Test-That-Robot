@@ -42,6 +42,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
     void clearError();
     void checkError();
 
@@ -58,6 +59,12 @@ protected:
 
 
 private:
+    QTimer *frameTimer;
+    QElapsedTimer simTimer;
+    float lastTime = 0.0f;
+
+
+    //fun
     static void APIENTRY glDebugOutput(GLenum source,
                                        GLenum type,
                                        GLuint id,
@@ -69,6 +76,7 @@ private:
 
     public slots:
     void addingBox();
+
 
 };
 

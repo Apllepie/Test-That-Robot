@@ -8,7 +8,7 @@ void InputController::wheel(QWheelEvent *e) {
     if (!camera || !scene) return;
     float delta = e->angleDelta().y() / 120.0f;
     if (leftPressed && scene->selectedObjectIndex != -1) {
-        scene->primitives[scene->selectedObjectIndex].Scale(-delta*1.2f, -delta*1.2f, 0.0f);
+        scene->primitives[scene->selectedObjectIndex]->Scale(-delta*1.2f, -delta*1.2f, 0.0f);
     } else {
         camera->moveCloser_Away(-delta);
     }
@@ -33,6 +33,7 @@ void InputController::mousePress(QMouseEvent *e, float dpr, int widgetHeight) {
 void InputController::mouseRelease(QMouseEvent *e) {
     if (e->button() == Qt::RightButton) rightPressed = false;
     if (e->button() == Qt::LeftButton)  leftPressed  = false;
+
 }
 
 void InputController::mouseMove(QMouseEvent *e) {
@@ -56,6 +57,26 @@ void InputController::keyPress(QKeyEvent *e) {
     if (!scene) return;
     if (e->key() == Qt::Key_Backspace || e->key() == Qt::Key_Delete) {
         scene->deleteObject();
+    }
+    if(e->key() == Qt::Key_Space){
+        //spacePressed = !spacePressed;
+        spacePressed = true;
+    }
+    if(spacePressed) {scene->stopRobot();
+        //qDebug() << (int)Qt::Key_Space<< "\n";
+    }
+
+    if(e->key() == Qt::Key_W){scene->startRobot(Qt::Key_W); }
+    if(e->key() == Qt::Key_A){scene->startRobot(Qt::Key_A); }
+    if(e->key() == Qt::Key_S){scene->startRobot(Qt::Key_S); }
+    if(e->key() == Qt::Key_D){scene->startRobot(Qt::Key_D); }
+
+}
+
+void InputController::keyRelease(QKeyEvent *e)
+{
+    if(e->key() == Qt::Key_Space){
+        spacePressed = false;
     }
 }
 

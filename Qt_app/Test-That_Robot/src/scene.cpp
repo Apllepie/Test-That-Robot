@@ -44,8 +44,11 @@ void Scene::initialize()
    // robot = Robot(robot_mesh);
    // robot.initialize();
     primitives.reserve(128);
-    primitives.emplace_back(Robot(robot_mesh));
-    primitives.back().initialize();
+    primitives.emplace_back(make_unique<Robot>(robot_mesh));
+    primitives.back()->initialize();
+    if (dynamic_cast<Robot*>(primitives.front().get())){
+
+        qDebug() << "Это Robot\n";}
     addBox();
     initGrid();
 
@@ -63,6 +66,7 @@ void Scene::resize(int w, int h)
 
 void Scene::paint(Camera& camera)
 {
+    //primitives.front().update(1.0f);
     picking.enableWrite();
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     paintPicking(camera);
@@ -93,11 +97,18 @@ void Scene::paint(Camera& camera)
         bool isSelected = (static_cast<int>(i) == selectedObjectIndex);
         GLint loc = f->glGetUniformLocation(defaultShader->ID, "isSelected");
         f->glUniform1i(loc, isSelected ? 1 : 0);
-
-        primitives[i].Draw(defaultShader);
+        primitives[i]->update(0.016f);
+        primitives[i]->Draw(defaultShader);
     }
 
 
+}
+
+void Scene::update(float dt)
+{
+    for (size_t i = 0; i < primitives.size(); ++i) {
+        primitives[i]->update(dt);
+    }
 }
 
 void Scene::paintPicking(Camera &camera)
@@ -111,10 +122,10 @@ void Scene::paintPicking(Camera &camera)
         GLint loc = f->glGetUniformLocation(frameShader->ID, "objectID");
         GLint mvp = f->glGetUniformLocation(frameShader->ID, "model");
         f->glUniform1ui(loc, id+1);
-        f->glUniformMatrix4fv(mvp,1, GL_FALSE, obj.modelMatrix.constData());
+        f->glUniformMatrix4fv(mvp,1, GL_FALSE, obj->modelMatrix.constData());
 
 
-        obj.Draw(frameShader);
+        obj->Draw(frameShader);
         id++;
     }
 }
@@ -134,14 +145,14 @@ void Scene::translateObject(float x, float y, Camera & camera){
     if(selectedObjectIndex == -1) return;
 
          float speed = camera.getZpos() * 0.0011f;
-         primitives[selectedObjectIndex].Translate(x*speed, y*speed, 0.0f);
+         primitives[selectedObjectIndex]->Translate(x*speed, y*speed, 0.0f);
 
 }
 
 void Scene::addBox()
 {
-    primitives.emplace_back(Object(box));
-    primitives.back().initialize();
+    primitives.emplace_back(make_unique<Object>(box));
+    primitives.back()->initialize();
 }
 
 
@@ -157,6 +168,18 @@ void Scene::deleteObject()
         primitives.erase(primitives.begin() + selectedObjectIndex);
     }
     selectedObjectIndex = -1;
+}
+
+void Scene::startRobot(int key)
+{
+    primitives.front()->start(key);
+    qDebug() << "robot START \n";
+}
+
+void Scene::stopRobot()
+{
+    primitives.front()->stop();
+    qDebug() << "robot STOP \n";
 }
 
 QVector2D Scene::getWindowSize()

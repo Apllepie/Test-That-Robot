@@ -22,6 +22,8 @@ public:
     void mouseRelease(QMouseEvent* e);
     void mouseMove(QMouseEvent* e);
     void keyPress(QKeyEvent* e);
+    void keyRelease(QKeyEvent *e);
+    bool isSpacePressed() {return spacePressed;}
 
 private:
     Camera* camera = nullptr;
@@ -29,6 +31,7 @@ private:
 
     bool leftPressed  = false;
     bool rightPressed = false;
+    bool spacePressed = false;
     QPoint lastPos;
     QVector3D mouseWorldPos;
 

@@ -17,10 +17,11 @@ class Object
 public:
     Object();
     Object(Mesh *mesh);
-    ~Object();
+    virtual ~Object() = default;
 
-
-
+    virtual void update(float);
+    virtual void start(int){};
+    virtual void stop(){};
 
     QMatrix4x4 modelMatrix;
     QMatrix4x4 scaleMatrix;

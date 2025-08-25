@@ -18,8 +18,9 @@ Object::Object(Mesh *mesh):mesh{mesh}
     modelMatrix = updateModelMatrix();
 }
 
-Object::~Object() {
-}
+void Object::update(float) {}
+
+
 
 
 
