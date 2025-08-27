@@ -59,11 +59,11 @@ Robot introduction milestone: add the first robot entity to the OpenGL scene (vi
 **Planned Actions**
 - [x] Create robot mesh (start with simple triangle; )
 - [x] Define robot pose structure (position, orientation; world frame documented)
-- [ ] Integrate mesh into render loop (reuse existing shaders / buffers)
-- [ ] Implement basic holonomic kinematics (apply vx, vy, omega per tick)
-- [ ] Add simple physics placeholder (velocity limits, optional damping)
-- [ ] Expose control hook (temporary UI fields or stub algorithm callback)
-- [ ] Generate AABB from mesh for future collision checks
+- [x] Integrate mesh into render loop (reuse existing shaders / buffers)
+- [x] Implement basic holonomic kinematics (apply vx, vy, omega per tick)
+- [ ] Implement occupancy grid
+- [ ] 
+- [ ] 
 - [ ] Update README with coordinate frame + units
 
 **Acceptance Criteria**

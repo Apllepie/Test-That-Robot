@@ -17,7 +17,7 @@
 #include "object.h"
 #include "pickingobject.h"
 #include "robot.h"
-
+#include "ocupancygrid.h"
 
 class Scene
 {
@@ -57,18 +57,10 @@ private:
 
 
     //grid rendering
-    Shader* gridShader = nullptr;
-    VAO gridVAO; //to do new class for this or mesh
-    VBO gridVBO;
-    GLsizei gridVertexCount = 0;
-
-    VAO axisVAO;
-    VBO axisVBO;
-    GLsizei axisVertexCount = 0;
-
+    // Occupancy Grid
+    OcupancyGrid occupancyGrid;
 
     //functions
-    void initGrid();
 };
 
 #endif // SCENE_H

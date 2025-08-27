@@ -16,6 +16,7 @@ SOURCES += \
     src/mainwindow.cpp \
     src/mesh.cpp \
     src/object.cpp \
+    src/ocupancygrid.cpp \
     src/opengl.cpp \
     src/pickingobject.cpp \
     src/robot.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     inc/mainwindow.h \
     inc/mesh.h \
     inc/object.h \
+    inc/ocupancygrid.h \
     inc/opengl.h \
     inc/pickingobject.h \
     inc/robot.h \

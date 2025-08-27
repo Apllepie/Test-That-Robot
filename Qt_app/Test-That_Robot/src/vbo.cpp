@@ -9,7 +9,7 @@ VBO::~VBO()
 
 }
 
-void VBO::Init(GLfloat *vertices, GLsizeiptr size)
+void VBO::Init(const void* data, GLsizeiptr size, GLenum usage)
 {
     QOpenGLContext *context = QOpenGLContext::currentContext();
     if (!context) {
@@ -19,8 +19,15 @@ void VBO::Init(GLfloat *vertices, GLsizeiptr size)
 
     f->glGenBuffers(1,&ID);
     f->glBindBuffer(GL_ARRAY_BUFFER, ID);
-    f->glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    f->glBufferData(GL_ARRAY_BUFFER, size, data, usage);
 
+}
+
+void VBO::Update(const void* data, GLsizeiptr size)
+{
+    Bind();
+    f->glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+    Unbind();
 }
 
 void VBO::Bind()

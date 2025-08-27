@@ -17,7 +17,8 @@ public:
     GLuint ID;
 
     //fun
-    void Init(GLfloat * vertices, GLsizeiptr size );
+    void Init(const void* data, GLsizeiptr size, GLenum usage = GL_STATIC_DRAW);
+    void Update(const void* data, GLsizeiptr size);
     void Bind();
     void Unbind();
     void Delete();

@@ -43,7 +43,7 @@ void Mesh::Init()
 
 
     vao.Init();
-    vbo.Init(vertices.data(), vertices.size()* sizeof(GLfloat));
+    vbo.Init(vertices.data(), vertices.size()* sizeof(GLfloat), GL_STATIC_DRAW);
     ebo.Init(indices.data(), indices.size()* sizeof(GLuint));
 
     vao.Bind();
