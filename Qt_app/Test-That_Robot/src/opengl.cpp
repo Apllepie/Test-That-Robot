@@ -141,6 +141,6 @@ void OpenGl::initDebug()
 
 void OpenGl::addingBox()
 {
-    scene.addBox();
+    scene.world.addBox();
     update();
 }

@@ -28,9 +28,9 @@ Mesh::Mesh(type type, std::vector<GLfloat> color)
 
 Mesh::~Mesh()
 {
-    vao.Delete();
-    vbo.Delete();
-    ebo.Delete();
+    // vao.Delete();
+    // vbo.Delete();
+    // ebo.Delete();
 }
 
 void Mesh::Init()

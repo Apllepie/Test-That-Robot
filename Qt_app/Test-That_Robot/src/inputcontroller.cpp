@@ -7,8 +7,8 @@
 void InputController::wheel(QWheelEvent *e) {
     if (!camera || !scene) return;
     float delta = e->angleDelta().y() / 120.0f;
-    if (leftPressed && scene->selectedObjectIndex != -1) {
-        scene->primitives[scene->selectedObjectIndex]->Scale(-delta*1.2f, -delta*1.2f, 0.0f);
+    if (leftPressed && scene->world.selectedObjectIndex != -1) {
+            scene->world.primitives[scene->world.selectedObjectIndex]->Scale(-delta*1.2f, -delta*1.2f, 0.0f);
     } else {
         camera->moveCloser_Away(-delta);
     }
@@ -47,7 +47,7 @@ void InputController::mouseMove(QMouseEvent *e) {
     if (leftPressed) {
         QPoint deltaPx = e->pos() - lastPos;
         lastPos = e->pos();
-        scene->translateObject(deltaPx.x(), -deltaPx.y(), *camera);
+        scene->world.translateObject(deltaPx.x(), -deltaPx.y(), *camera);
 
       
     }
@@ -56,20 +56,20 @@ void InputController::mouseMove(QMouseEvent *e) {
 void InputController::keyPress(QKeyEvent *e) {
     if (!scene) return;
     if (e->key() == Qt::Key_Backspace || e->key() == Qt::Key_Delete) {
-        scene->deleteObject();
+        scene->world.deleteObject();
     }
     if(e->key() == Qt::Key_Space){
         //spacePressed = !spacePressed;
         spacePressed = true;
     }
-    if(spacePressed) {scene->stopRobot();
+    if(spacePressed) {scene->world.stopRobot();
         //qDebug() << (int)Qt::Key_Space<< "\n";
     }
 
-    if(e->key() == Qt::Key_W){scene->startRobot(Qt::Key_W); }
-    if(e->key() == Qt::Key_A){scene->startRobot(Qt::Key_A); }
-    if(e->key() == Qt::Key_S){scene->startRobot(Qt::Key_S); }
-    if(e->key() == Qt::Key_D){scene->startRobot(Qt::Key_D); }
+    if(e->key() == Qt::Key_W){scene->world.startRobot(Qt::Key_W); }
+    if(e->key() == Qt::Key_A){scene->world.startRobot(Qt::Key_A); }
+    if(e->key() == Qt::Key_S){scene->world.startRobot(Qt::Key_S); }
+    if(e->key() == Qt::Key_D){scene->world.startRobot(Qt::Key_D); }
 
 }
 
@@ -96,14 +96,14 @@ QVector3D InputController::getMouseWorldPos(QMouseEvent *e) {
 void InputController::pickAt(float dpr, int widgetHeight) {
     if (!scene) return;
 
-    // widgetHeight в logical px; преобразуем как раньше:
+    // widgetHeight  logical px;
     int px = int(lastPos.x() * dpr);
     int py = int((widgetHeight - lastPos.y()) * dpr);
 
-    auto pixel = scene->picking.readPixel(px, py);
-    GLuint pickedID = pixel.r;
-    if (pickedID > 0) scene->selectObject(pickedID - 1);
-    else scene->selectObject(-1);
+    auto pixel = scene->world.picking.readPixel(px, py);
+    GLuint pickedID = pixel.r; // for now only 255 objects
+    if (pickedID > 0) scene->world.selectObject(pickedID - 1);
+    else scene->world.selectObject(-1);
 
     qDebug() << "mouse pos:" << lastPos << "pick" << pickedID;
     pixel.print();

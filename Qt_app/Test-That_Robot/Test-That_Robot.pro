@@ -23,7 +23,8 @@ SOURCES += \
     src/scene.cpp \
     src/shaderclass.cpp \
     src/vao.cpp \
-    src/vbo.cpp
+    src/vbo.cpp \
+    src/world.cpp
 
 HEADERS += \
     inc/camera.h \
@@ -39,7 +40,8 @@ HEADERS += \
     inc/scene.h \
     inc/shaderclass.h \
     inc/vao.h \
-    inc/vbo.h
+    inc/vbo.h \
+    inc/world.h
 
 FORMS += \
     ui/mainwindow.ui
