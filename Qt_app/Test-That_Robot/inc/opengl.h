@@ -33,29 +33,23 @@ public:
 
 protected:
     InputController input;
+    Scene scene;
+
+
+    float dpr;
+
 
     void initializeGL() ;
     void resizeGL(int w, int h) ;
-    void paintGL() ;
+    void paintGL();
+
+
     void wheelEvent(QWheelEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
-    void clearError();
-    void checkError();
-
-
-    Scene scene;
-    Camera camera;
-
-
-    bool rightMousePress = false;
-    bool leftMousePress = false;
-    QPoint lastMousePos;
-    Object object;
-    float dpr;
 
 
 private:

@@ -6,13 +6,13 @@
 
 OpenGl::OpenGl(QWidget *parent)
     : QOpenGLWidget(parent)
-    , input(&camera, &scene)
+    , input(&scene)
 {
     setFocusPolicy(Qt::StrongFocus);
 
     frameTimer = new QTimer(this);
     connect(frameTimer, &QTimer::timeout, this, [this]() {
-        update();   // перерисовать виджет → вызовет paintGL()
+        update();   // call paintGL
     });
     frameTimer->start(16); // ~60 FPS
 }
@@ -36,9 +36,7 @@ void OpenGl::initializeGL()
     qDebug() << "OpenGL initialized";
 
     simTimer.start();
-    camera.Init();
     scene.initialize();
-    // Удалено: input = InputController(&camera,&scene);
 }
 
 void OpenGl::resizeGL(int w, int h)
@@ -48,12 +46,10 @@ void OpenGl::resizeGL(int w, int h)
 }
 void OpenGl::paintGL()
 {
-    camera.Activate(scene.defaultShader);
 
     float dt = simTimer.restart() / 1000.0f;
     scene.update(dt);
-    scene.paint(camera);
-    checkError();
+    scene.paint();
 }
 
 void OpenGl::wheelEvent(QWheelEvent *event)
@@ -91,17 +87,6 @@ void OpenGl::keyReleaseEvent(QKeyEvent *event)
     input.keyRelease(event);
 }
 
- void OpenGl::clearError()
-{
-    while(glGetError() != GL_NO_ERROR);
-}
-
- void OpenGl::checkError()
-{
-     while (GLenum err = glGetError() ){
-        qDebug()  <<"[OPENGL ERROR] ("<< err <<")\n";
-     }
-}
 
 void OpenGl::glDebugOutput(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
 {

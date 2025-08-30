@@ -6,9 +6,8 @@ Scene::~Scene()
 {
     primitives.clear();
 
-    if(defaultShader){defaultShader->Delete(); delete defaultShader; defaultShader = nullptr; }
-    if(frameShader){frameShader->Delete(); delete frameShader; frameShader = nullptr;}
-
+    defaultShader->Delete();
+    frameShader->Delete();
 
     delete box;
     delete robot_mesh;
@@ -21,9 +20,11 @@ void Scene::initialize()
         qFatal("No current OpenGL context");
     }
     f = context->extraFunctions();
+    camera.Init();
 
-    defaultShader = new Shader (":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
-    frameShader = new Shader(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
+    defaultShader =  std::make_unique<Shader>(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
+    frameShader = std::make_unique<Shader>(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
+
     box = new Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f});
     box->Init();
      robot_mesh = new Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
@@ -63,8 +64,10 @@ void Scene::resize(int w, int h)
     //camera.changeProjection(w, h, 45.0f, 0.1f, 100.0f);
 }
 
-void Scene::paint(Camera& camera)
+void Scene::paint()
 {
+    camera.Activate(defaultShader.get());
+
     //primitives.front().update(1.0f);
     picking.enableWrite();
     f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -77,13 +80,13 @@ void Scene::paint(Camera& camera)
 
     for (size_t i = 0; i < primitives.size(); ++i) {
         defaultShader->Activate();
-        camera.Activate(defaultShader);
+        camera.Activate(defaultShader.get());
 
         bool isSelected = (static_cast<int>(i) == selectedObjectIndex);
         GLint loc = f->glGetUniformLocation(defaultShader->ID, "isSelected");
         f->glUniform1i(loc, isSelected ? 1 : 0);
         primitives[i]->update(0.016f);
-        primitives[i]->Draw(defaultShader);
+        primitives[i]->Draw(defaultShader.get());
     }
 
 
@@ -102,7 +105,7 @@ void Scene::paintPicking(Camera &camera)
 
     for(auto& obj :primitives){
         frameShader->Activate();
-        camera.Activate(frameShader);
+        camera.Activate(frameShader.get());
 
         GLint loc = f->glGetUniformLocation(frameShader->ID, "objectID");
         GLint mvp = f->glGetUniformLocation(frameShader->ID, "model");
@@ -110,7 +113,7 @@ void Scene::paintPicking(Camera &camera)
         f->glUniformMatrix4fv(mvp,1, GL_FALSE, obj->modelMatrix.constData());
 
 
-        obj->Draw(frameShader);
+        obj->Draw(frameShader.get());
         id++;
     }
 }

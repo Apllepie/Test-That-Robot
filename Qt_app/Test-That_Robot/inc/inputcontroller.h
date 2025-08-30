@@ -14,7 +14,7 @@
 class InputController {
 public:
     InputController() = default;
-    explicit InputController(Camera* cam, Scene* scn) : camera(cam), scene(scn) {}
+    explicit InputController(Scene* scn) : camera(&scn->camera), scene(scn) {}
     ~InputController() = default;
 
     void wheel(QWheelEvent* e);

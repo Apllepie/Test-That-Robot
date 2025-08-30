@@ -10,10 +10,10 @@
 #include <memory>
 #include <QTimer>
 #include <QElapsedTimer>
+#include <memory.h>
 
 #include "camera.h"
 #include "shaderclass.h"
-#include "VAO.h"
 #include "object.h"
 #include "pickingobject.h"
 #include "robot.h"
@@ -22,11 +22,26 @@
 class Scene
 {
 public:
+    Camera camera;
+
+    Mesh *box;
+    Mesh *robot_mesh;
+    Robot robot;
+
+    std::vector<std::unique_ptr<Object>> primitives;
+
+    std::unique_ptr<Shader> defaultShader;
+    std::unique_ptr<Shader> frameShader;
+
+    PickingObject picking;
+    int selectedObjectIndex = -1;
+
+
     Scene();
     ~Scene();
     void initialize();
     void resize(int w, int h);
-    void paint(Camera& camera);
+    void paint();
     void update(float dt);
     void paintPicking(Camera& camera);
     void selectObject(int index);
@@ -36,17 +51,6 @@ public:
     void startRobot(int key);
     void stopRobot();
     QVector2D getWindowSize();
-
-    Mesh *box;
-    Mesh *robot_mesh;
-    Robot robot;
-
-    std::vector<std::unique_ptr<Object>> primitives;
-
-    Shader *defaultShader;
-    Shader *frameShader;
-    PickingObject picking;
-    int selectedObjectIndex = -1;
 
 
 private:
