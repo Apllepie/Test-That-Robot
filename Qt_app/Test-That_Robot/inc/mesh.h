@@ -18,10 +18,11 @@ class Mesh
 {
 public:
     enum type {BOX, TRIANGLE};
+
+
     Mesh();
     Mesh(std::vector<GLfloat> vertices, std::vector<GLuint>indices);
     Mesh(type type, std::vector<GLfloat> color);
-
 
     ~Mesh();
 
@@ -32,6 +33,12 @@ public:
     void Draw();
 
     void printVertices();
+
+
+    //AABB fun
+    std::vector<QVector3D> getVertexPosition();
+    std::vector<QVector3D> getBoundingBoxVertices();
+    void getLocalAABB(QVector3D& minPoint, QVector3D& maxPoint);
 
 private:
     VAO vao;
