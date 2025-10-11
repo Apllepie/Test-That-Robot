@@ -33,6 +33,7 @@ public:
     void Draw(Camera& camera);
     void DrawGrid(Camera& camera);
     void SetCell(int x, int y, int value);
+    void Clear();
 
 private:
     bool dirty = true; // check for changes

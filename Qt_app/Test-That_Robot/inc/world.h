@@ -40,11 +40,15 @@ public:
 
     void Init(QOpenGLExtraFunctions *f);
     void Update(float dt);
+    void testAABB();
+    void testOccupancyGrid();
+    void updateOccupancyGrid();
     void Draw(Shader *dShader, Camera &camera);
 
     void initPicking(int w, int h);
     void paintPicking(Shader *fShader);
 
+    void addRobot();
     void addBox();
     void deleteObject();
     void selectObject(int index);

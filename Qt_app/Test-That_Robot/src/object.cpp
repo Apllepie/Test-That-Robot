@@ -20,6 +20,36 @@ Object::Object(Mesh *mesh):mesh{mesh}
 
 void Object::update(float) {}
 
+AABB Object::calculateAABB()
+{
+    if (!mesh) {
+        qDebug() << "Warning: Object has no mesh!";
+        return AABB();
+    }
+    std::vector<QVector3D> meshVertices = mesh->getVertexPosition();
+    if(meshVertices.empty()){
+        qDebug() << "Warning: Mesh has no vertices!";
+        return AABB();
+    }
+
+    AABB aabb;
+    for(const auto & localVer : meshVertices){
+        QVector3D worldVertices = modelMatrix.map(localVer);
+        aabb.expand(worldVertices);
+    }
+
+    return aabb;
+}
+
+AABB Object::getAABB()
+{
+    if (aabbDirty) {
+        cachedAABB = calculateAABB();
+        aabbDirty = false;
+    }
+    return cachedAABB;
+}
+
 
 
 

@@ -28,14 +28,14 @@ void OcupancyGrid::Init(int w, int h, float cSize, int res)
     resolution = res;
 
     // Total number of sub-cells along each axis
-    int totalWidth = width * resolution;
-    int totalHeight = height * resolution;
+    int totalWidth = width ;
+    int totalHeight = height ;
     grid.assign(totalWidth * totalHeight, 0);
 
     shader = new Shader(":/Shaders/shaders/occupancy.vert", ":/Shaders/shaders/occupancy.frag");
 
-    // Размер одной суб-ячейки
-    float subCellSize = cellSize / resolution;
+    // size of one subcell
+    float subCellSize = cellSize ;
     float s = subCellSize / 2.0f; // Half the size of the sub-cell
     GLfloat quadVertices[] = {
         -s, -s,
@@ -68,12 +68,11 @@ void OcupancyGrid::Update()
 {
     if (width == 0 || height == 0) return;
 
-    int totalWidth = width * resolution;
-    int totalHeight = height * resolution;
-    float subCellSize = cellSize / resolution;
+    int totalWidth = width ;
+    int totalHeight = height ;
+    float subCellSize = cellSize ;
 
     instanceData.clear();
-    //draw only occupied cells
 
     // Starting point of the entire large grid
     float startX = -(width * cellSize) / 2.0f;
@@ -81,8 +80,11 @@ void OcupancyGrid::Update()
 
     for (int y = 0; y < totalHeight; ++y) {
         for (int x = 0; x < totalWidth; ++x) {
+            // ИСПРАВЛЯЕМ: Инвертируем Y для правильного отображения
+            int flippedY = totalHeight - 1 - y;
+            
             // Check if the cell is occupied
-            if (grid[y * totalWidth + x] == 1) {
+            if (grid[flippedY * totalWidth + x] == 1) {
                 // Offset: compute the center of each sub-cell
                 instanceData.push_back(startX + x * subCellSize + subCellSize / 2.0f);
                 instanceData.push_back(startY + y * subCellSize + subCellSize / 2.0f);
@@ -147,14 +149,24 @@ void OcupancyGrid::DrawGrid(Camera &camera)
 
 void OcupancyGrid::SetCell(int x, int y, int value)
 {
-    int totalWidth = width * resolution;
-    int totalHeight = height * resolution;
+    int totalWidth = width;
+    int totalHeight = height;
+    
     if (x >= 0 && x < totalWidth && y >= 0 && y < totalHeight) {
-        if (grid[y * totalWidth + x] != value) { // Update only if the value changes
-            grid[y * totalWidth + x] = value;
-            dirty = true; // Set the flag that the data has changed
+        // ИСПРАВЛЯЕМ: Инвертируем Y при записи
+        int flippedY = totalHeight - 1 - y;
+        
+        if (grid[flippedY * totalWidth + x] != value) {
+            grid[flippedY * totalWidth + x] = value;
+            dirty = true;
         }
     }
+}
+
+void OcupancyGrid::Clear()
+{
+    std::fill(grid.begin(), grid.end(), 0);
+    dirty = true;
 }
 
 void OcupancyGrid::initGrid()

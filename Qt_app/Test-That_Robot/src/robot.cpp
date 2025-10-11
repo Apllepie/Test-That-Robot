@@ -18,6 +18,7 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
     velocity = QVector2D(0.0f, 0.0f);
     omega = 0.0f;
 
+    isRobot = true;
 }
 
 void Robot::update(float dt)
