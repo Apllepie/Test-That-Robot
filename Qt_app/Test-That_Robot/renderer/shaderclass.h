@@ -14,7 +14,7 @@ using namespace std;
 
 string get_file_contents(const char * filename);
 
-class Shader
+class Shader : public QOpenGLExtraFunctions
 {
 public:
     Shader();
@@ -26,7 +26,6 @@ public:
     void Delete();
 
 private:
-    QOpenGLExtraFunctions *f;
 
     void compileError(unsigned int shader, const char * type);
 

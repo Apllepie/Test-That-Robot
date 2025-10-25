@@ -2,10 +2,6 @@
 #define WORLD_H
 
 
-#include <QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
-#include <GL/gl.h>
-#include <QOpenGLContext>
 #include <cerrno>
 #include <QMatrix4x4>
 #include <memory>
@@ -13,54 +9,46 @@
 #include <QElapsedTimer>
 #include <memory.h>
 
-#include "camera.h"
-#include "shaderclass.h"
+
 #include "object.h"
-#include "pickingobject.h"
 #include "robot.h"
+#include "obstacle.h"
 #include "occupancy_grid.h"
 
 
 
 class World
 {
+private:
+   std::vector<std::unique_ptr<Object>> _primitives;
+    bool _isSelected = false;
+    int _selectedObjectIndex = -1;
+
+    std::unique_ptr<Mesh> _box;
+    std::unique_ptr<Mesh> _robotMesh;
+
 public:
-    std::unique_ptr<Mesh> box;
-    std::unique_ptr<Mesh> robotMesh;
 
-
-    std::vector<std::unique_ptr<Object>> primitives;
-
-    PickingObject picking;
-    int selectedObjectIndex = -1;
-
-    OcupancyGrid grid;
+    
 
     World();
+    ~World() = default;
 
-    void Init(QOpenGLExtraFunctions *f);
-    void Update(float dt);
-    void testAABB();
-    void testOccupancyGrid();
-    void updateOccupancyGrid();
-    void Draw(Shader *dShader, Camera &camera);
+    void init();
+    void update(float dt);
 
-    void initPicking(int w, int h);
-    void paintPicking(Shader *fShader);
 
     void addRobot();
     void addBox();
     void deleteObject();
     void selectObject(int index);
-    void translateObject(float x, float y, Camera &camera);
+    void translateObject(float x, float y);
 
-    void startRobot(int key);
+    void startRobot();
     void stopRobot();
 
-private:
-    QOpenGLExtraFunctions *f;
+    const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }
 
-    bool isSelected = false;
 
 };
 

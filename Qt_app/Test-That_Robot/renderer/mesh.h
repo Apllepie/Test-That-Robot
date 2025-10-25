@@ -14,7 +14,7 @@
 #include "vao.h"
 #include "ebo.h"
 
-class Mesh
+class Mesh : public QOpenGLExtraFunctions
 {
 public:
     enum type {BOX, TRIANGLE};
@@ -35,11 +35,6 @@ public:
     void printVertices();
 
 
-    //AABB fun
-    std::vector<QVector3D> getVertexPosition();
-    std::vector<QVector3D> getBoundingBoxVertices();
-    void getLocalAABB(QVector3D& minPoint, QVector3D& maxPoint);
-
 private:
     VAO vao;
     VBO vbo;
@@ -48,7 +43,6 @@ private:
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
 
-    QOpenGLExtraFunctions* f = nullptr;
 
     //fun
     void Box();

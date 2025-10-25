@@ -12,7 +12,7 @@
 
 #define BASE_SPEED 0.0014f
 
-class Camera
+class Camera : public QOpenGLExtraFunctions
 {
 public:
     Camera();
@@ -26,7 +26,6 @@ public:
     void Move(QPoint delta);
     float getZpos();
 private:
-    QOpenGLExtraFunctions *f;
 
 
     QVector3D camPos;

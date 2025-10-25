@@ -1,100 +1,54 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
-#include <GL/gl.h>
-#include <QOpenGLContext>
+
 #include <cerrno>
 #include <QMatrix4x4>
 #include <float.h>
+#include <memory>
 
-#include "shaderclass.h"
-#include "mesh.h"
-
-struct AABB{
-    QVector3D min, max;
-
-    AABB() : min(FLT_MAX, FLT_MAX, FLT_MAX), max(-FLT_MAX, -FLT_MAX, -FLT_MAX){}
-
-
-    void expand(const QVector3D & point){ //expanding bounce box, adding point
-        min.setX(std::min(min.x(), point.x()));
-        min.setY(std::min(min.y(), point.y()));
-        min.setZ(std::min(min.z(), point.z()));
-
-        max.setX(std::max(max.x(), point.x()));
-        max.setY(std::max(max.y(), point.y()));
-        max.setZ(std::max(max.z(), point.z()));
-
-    }
-    const QVector3D getCenter() {
-        return (min + max) * 0.5f;
-    }
-
-    const QVector3D getSize(){
-        return (max - min);
-    }
-
-    bool isValid(){
-        return min.x() != FLT_MAX;
-    }
-
-};
+#include "renderer/mesh.h"
 
 
 
 
 class Object
 {
+protected:
+    float _x = 0.0f;
+    float _y = 0.0f;
+    float _angle = 0.0f;
+    float _scale = 1.0f;
+    size_t _id;
+    
+
+
+
+    QMatrix4x4 _modelMatrix;
+    Mesh * _mesh;
+
+    void updateModelMatrixFromPosition();
+    void updatePositionFromModelMatrix();
+
 public:
-    std::vector<GLfloat> Color;
-
-    Mesh *mesh;
-
-    QMatrix4x4 modelMatrix;
-    QMatrix4x4 scaleMatrix;
-    QMatrix4x4 transMatrix;
-    QMatrix4x4 ZrotateMatrix;
-    QMatrix4x4 XrotateMatrix;
-    QMatrix4x4 YrotateMatrix;
-
-    bool isRobot = false;
-
-    AABB cachedAABB;
-    bool aabbDirty = true;
-
-
-
-    Object();
+    Object() = default;
     Object(Mesh *mesh);
     virtual ~Object() = default;
 
-    virtual void update(float);
-    virtual void start(int){};
+    bool isRobot = false;
+
+    virtual void update(float){};
+    virtual void start(){};
     virtual void stop(){};
 
-    //aabb fun
-    AABB calculateAABB();
-    AABB getAABB();
-    void invalidateAABB(){aabbDirty = true;}
-    //fun
-    void initialize();
-    void addModel(GLuint &uniID);
-    void Draw(Shader *shader);
+    //FUNCTIONS TO TRANSFORM THE OBJECT
     void Translate(float x, float y, float z);
     void Scale(float x, float y, float z);
-    void RotateZ(float theta);
-    void RotateY(float theta);
-    void RotateX(float theta);
+    void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
 
-     QMatrix4x4 updateModelMatrix();
-private:
-    QOpenGLExtraFunctions *f;
-    GLuint uniID;
-
-    //fun
-
+    QMatrix4x4 getModelMatrix() const {return _modelMatrix;}
+    void setModelMatrix(const QMatrix4x4 &newModelMatrix) {_modelMatrix = newModelMatrix;}
+    Mesh* getMesh() const {return _mesh; }
 };
 
 #endif // OBJECT_H

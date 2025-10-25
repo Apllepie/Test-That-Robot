@@ -9,7 +9,7 @@
 
 
 
-class PickingObject
+class PickingObject : public QOpenGLExtraFunctions
 {
 public:
     PickingObject();
@@ -34,7 +34,6 @@ public:
     pixelInfo readPixel(unsigned int x, unsigned int y );
 
 private:
-    QOpenGLExtraFunctions *f;
 
     GLuint t_FBO;
     GLuint t_picking;

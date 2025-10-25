@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    QObject::connect(ui->actionadd_box, &QAction::triggered, ui->opengl_widget, &OpenGl::addingBox  );
+    QObject::connect(ui->actionadd_box, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingBox  );
 }
 
 MainWindow::~MainWindow()

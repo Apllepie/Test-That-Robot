@@ -175,7 +175,7 @@
    <widget class="QWidget" name="dockWidgetContents_7">
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="OpenGl" name="opengl_widget" native="true">
+      <widget class="OpenGLWidget" name="opengl_widget" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
          <horstretch>0</horstretch>
@@ -214,7 +214,7 @@
   </widget>
   <action name="actionopen">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/folder-open.svg</normaloff>:/icons/icons/folder-open.svg</iconset>
    </property>
    <property name="text">
@@ -233,7 +233,7 @@
   </action>
   <action name="actioncode">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/file-code.svg</normaloff>:/icons/icons/file-code.svg</iconset>
    </property>
    <property name="text">
@@ -242,7 +242,7 @@
   </action>
   <action name="actionCreate_new">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/file.svg</normaloff>:/icons/icons/file.svg</iconset>
    </property>
    <property name="text">
@@ -251,7 +251,7 @@
   </action>
   <action name="actionGenerate">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/sparkles.svg</normaloff>:/icons/icons/sparkles.svg</iconset>
    </property>
    <property name="text">
@@ -260,7 +260,7 @@
   </action>
   <action name="actionSave">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/floppy-disk.svg</normaloff>:/icons/icons/floppy-disk.svg</iconset>
    </property>
    <property name="text">
@@ -269,7 +269,7 @@
   </action>
   <action name="actionSave_as">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/floppy-disk-pen.svg</normaloff>:/icons/icons/floppy-disk-pen.svg</iconset>
    </property>
    <property name="text">
@@ -278,7 +278,7 @@
   </action>
   <action name="actionadd_box">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/box.svg</normaloff>:/icons/icons/box.svg</iconset>
    </property>
    <property name="text">
@@ -293,7 +293,7 @@
   </action>
   <action name="actionrun">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/person-running-fast.svg</normaloff>:/icons/icons/person-running-fast.svg</iconset>
    </property>
    <property name="text">
@@ -308,7 +308,7 @@
   </action>
   <action name="actionadd_robot">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/robot-astromech.svg</normaloff>:/icons/icons/robot-astromech.svg</iconset>
    </property>
    <property name="text">
@@ -323,7 +323,7 @@
   </action>
   <action name="actionadd_wall">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/fence.svg</normaloff>:/icons/icons/fence.svg</iconset>
    </property>
    <property name="text">
@@ -338,7 +338,7 @@
   </action>
   <action name="actionadd_move_object">
    <property name="icon">
-    <iconset>
+    <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/basketball.svg</normaloff>:/icons/icons/basketball.svg</iconset>
    </property>
    <property name="text">
@@ -354,12 +354,13 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>OpenGl</class>
+   <class>OpenGLWidget</class>
    <extends>QWidget</extends>
-   <header location="global">opengl.h</header>
-   <container>1</container>
+   <header location="global">openglwidget.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

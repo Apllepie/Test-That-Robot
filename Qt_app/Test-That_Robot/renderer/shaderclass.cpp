@@ -29,11 +29,7 @@ Shader::~Shader()
 
 Shader::Shader(const char* vertexFile, const char * fragmentFile)
 {
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (!context) {
-        qFatal("No current OpenGL context");
-    }
-    f = context->extraFunctions();
+    initializeOpenGLFunctions();
 
     string vertexCode = get_file_contents(vertexFile);
     string fragmentCode = get_file_contents(fragmentFile);
@@ -42,45 +38,45 @@ Shader::Shader(const char* vertexFile, const char * fragmentFile)
     const char * fragmentSource = fragmentCode.c_str();
 
     //create vertex shader and get refference
-    GLuint vertexShader = f->glCreateShader(GL_VERTEX_SHADER);
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     //attached shader source to shader object
-    f->glShaderSource(vertexShader, 1, &vertexSource, NULL);
+    glShaderSource(vertexShader, 1, &vertexSource, NULL);
     //compile shader into mashine code
-    f->glCompileShader(vertexShader);
+    glCompileShader(vertexShader);
     compileError(vertexShader,"VERTEX");
 
     //create fragment shader and get reference
-    GLuint fragmentShader = f->glCreateShader(GL_FRAGMENT_SHADER);
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     //attached shader source to shader object
-    f->glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
     //compile shader into mashine code
-    f->glCompileShader(fragmentShader);
+    glCompileShader(fragmentShader);
     compileError(fragmentShader,"FRAGMENT");
 
     //create shaderProgram object
-    ID = f->glCreateProgram();
+    ID = glCreateProgram();
     //attached fragmentShader and Vertex Shader to shaderProgram
-    f->glAttachShader(ID, vertexShader);
-    f->glAttachShader(ID, fragmentShader);
+    glAttachShader(ID, vertexShader);
+    glAttachShader(ID, fragmentShader);
 
     //wrap up/ links all shaders into the shader program
-    f->glLinkProgram(ID);
+    glLinkProgram(ID);
     compileError(ID, "PROGRAM");
 
     //delete now useless vertex and fragment shader
-    f->glDeleteShader(vertexShader);
-    f->glDeleteShader(fragmentShader);
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
 
 }
 
 void Shader::Activate()
 {
-    f->glUseProgram(ID);
+    glUseProgram(ID);
 }
 
 void Shader::Delete()
 {
-     f->glDeleteProgram(ID);
+     glDeleteProgram(ID);
 }
 
 void Shader::compileError(unsigned int handle, const char* type)
@@ -89,15 +85,15 @@ void Shader::compileError(unsigned int handle, const char* type)
     char log[4096] = {0};
 
     if (std::strcmp(type, "PROGRAM") != 0) {
-        f->glGetShaderiv(handle, GL_COMPILE_STATUS, &ok);
+        glGetShaderiv(handle, GL_COMPILE_STATUS, &ok);
         if (!ok) {
-            f->glGetShaderInfoLog(handle, sizeof(log), nullptr, log);
+            glGetShaderInfoLog(handle, sizeof(log), nullptr, log);
             qDebug() << "SHADER COMPILATION ERROR (" << type << "):\n" << log;
         }
     } else {
-        f->glGetProgramiv(handle, GL_LINK_STATUS, &ok);
+        glGetProgramiv(handle, GL_LINK_STATUS, &ok);
         if (!ok) {
-            f->glGetProgramInfoLog(handle, sizeof(log), nullptr, log);
+            glGetProgramInfoLog(handle, sizeof(log), nullptr, log);
             qDebug() << "SHADER LINKING ERROR (PROGRAM):\n" << log;
         }
     }

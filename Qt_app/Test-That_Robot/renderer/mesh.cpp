@@ -28,19 +28,12 @@ Mesh::Mesh(type type, std::vector<GLfloat> color)
 
 Mesh::~Mesh()
 {
-    // vao.Delete();
-    // vbo.Delete();
-    // ebo.Delete();
+
 }
 
 void Mesh::Init()
 {
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (!context) {
-        qFatal("No current OpenGL context");
-    }
-    f = context->extraFunctions();
-
+    initializeOpenGLFunctions();
 
     vao.Init();
     vbo.Init(vertices.data(), vertices.size()* sizeof(GLfloat), GL_STATIC_DRAW);
@@ -61,7 +54,7 @@ void Mesh::Draw()
 {
     vao.Bind();
     ebo.Bind();
-    f->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 }
 
 void Mesh::printVertices()
@@ -74,58 +67,7 @@ void Mesh::printVertices()
     }
 }
 
-std::vector<QVector3D> Mesh::getVertexPosition()
-{
-    std::vector<QVector3D> pos;
-    for(int i = 0; i < static_cast<int>(vertices.size()); i += 6){
-        pos.emplace_back(vertices[i], vertices[i+1], vertices[i+2] );
-    }
-    return pos;
-}
 
-std::vector<QVector3D> Mesh::getBoundingBoxVertices()
-{
-    QVector3D minPoint, maxPoint;
-    getLocalAABB(minPoint, maxPoint);
-
-    // generate all 8 angle bounding box'а
-    return {
-        QVector3D(minPoint.x(), minPoint.y(), minPoint.z()),
-        QVector3D(maxPoint.x(), minPoint.y(), minPoint.z()),
-        QVector3D(maxPoint.x(), maxPoint.y(), minPoint.z()),
-        QVector3D(minPoint.x(), maxPoint.y(), minPoint.z()),
-        QVector3D(minPoint.x(), minPoint.y(), maxPoint.z()),
-        QVector3D(maxPoint.x(), minPoint.y(), maxPoint.z()),
-        QVector3D(maxPoint.x(), maxPoint.y(), maxPoint.z()),
-        QVector3D(minPoint.x(), maxPoint.y(), maxPoint.z())
-    };
-
-}
-
-void Mesh::getLocalAABB(QVector3D &minPoint, QVector3D &maxPoint)
-{
-    if (vertices.empty()) {
-        minPoint = maxPoint = QVector3D(0, 0, 0);
-        return;
-    }
-
-    // initialization using 0 xyz
-    minPoint = maxPoint = QVector3D(vertices[0], vertices[1], vertices[2]);
-
-    for (size_t i = 6; i < vertices.size(); i += 6) {
-        QVector3D vertex(vertices[i], vertices[i+1], vertices[i+2]);
-
-        minPoint.setX(std::min(minPoint.x(), vertex.x()));
-        minPoint.setY(std::min(minPoint.y(), vertex.y()));
-        minPoint.setZ(std::min(minPoint.z(), vertex.z()));
-
-        maxPoint.setX(std::max(maxPoint.x(), vertex.x()));
-        maxPoint.setY(std::max(maxPoint.y(), vertex.y()));
-        maxPoint.setZ(std::max(maxPoint.z(), vertex.z()));
-    }
-
-    qDebug() << "Mesh AABB - Min:" << minPoint << "Max:" << maxPoint;
-}
 
 void Mesh::Box()
 {

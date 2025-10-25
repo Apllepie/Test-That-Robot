@@ -1,4 +1,4 @@
-#include "camera.h"
+#include "renderer/camera.h"
 
 Camera::Camera() {
 
@@ -6,11 +6,7 @@ Camera::Camera() {
 
 void Camera::Init()
 {
-    QOpenGLContext *context = QOpenGLContext::currentContext();
-    if (!context) {
-        qFatal("No current OpenGL context");
-    }
-    f = context->extraFunctions();
+    initializeOpenGLFunctions();
 
     camPos = QVector3D(0.0f, 0.0f, 5.0f);
     whereLook = QVector3D(0.0f, 0.0f, 0.0f);
@@ -25,8 +21,8 @@ void Camera::Init()
 void Camera::Activate(Shader *shader)
 {
     shader->Activate();
-    f->glUniformMatrix4fv(f->glGetUniformLocation(shader->ID, "view"),1,GL_FALSE, view.constData());
-    f->glUniformMatrix4fv(f->glGetUniformLocation(shader->ID, "projection"),1,GL_FALSE, projection.constData());
+    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "view"),1,GL_FALSE, view.constData());
+    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "projection"),1,GL_FALSE, projection.constData());
 
 }
 
