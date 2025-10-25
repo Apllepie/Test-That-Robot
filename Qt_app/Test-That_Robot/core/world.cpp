@@ -1,5 +1,9 @@
 #include "world.h"
 
+//should be divided into smaller parts
+
+// change occupancy grid to dynamic, and aabb
+
 World::World() {}
 
 
@@ -230,8 +234,8 @@ void World::addBox()
     primitives.back()->initialize();
     
     // Убираем автоматическое позиционирование - пусть пользователь сам размещает
-    QVector3D pos = primitives.back()->modelMatrix.column(3).toVector3D();
-    qDebug() << "Added box at position:" << pos;
+    //QVector3D pos = primitives.back()->modelMatrix.column(3).toVector3D();
+    //qDebug() << "Added box at position:" << pos;
     
     // Обновляем сетку при добавлении объекта
     updateOccupancyGrid();

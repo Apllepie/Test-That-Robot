@@ -1,4 +1,4 @@
-#include "ocupancygrid.h"
+#include "occupancy_grid.h"
 #include <QOpenGLContext>
 
 

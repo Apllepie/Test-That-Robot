@@ -17,7 +17,7 @@
 #include "object.h"
 #include "pickingobject.h"
 #include "robot.h"
-#include "ocupancygrid.h"
+#include "occupancy_grid.h"
 #include "world.h"
 
 class Scene

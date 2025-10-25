@@ -4,47 +4,65 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
-# You can make your code fail to compile if it uses deprecated APIs.
-# In order to do so, uncomment the following line.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
-SOURCES += \
-    src/camera.cpp \
-    src/ebo.cpp \
-    src/inputcontroller.cpp \
-    src/main.cpp \
-    src/mainwindow.cpp \
-    src/mesh.cpp \
-    src/object.cpp \
-    src/ocupancygrid.cpp \
-    src/opengl.cpp \
-    src/pickingobject.cpp \
-    src/robot.cpp \
-    src/scene.cpp \
-    src/shaderclass.cpp \
-    src/vao.cpp \
-    src/vbo.cpp \
-    src/world.cpp
+INCLUDEPATH += \
+    $$PWD/app \
+    $$PWD/core \
+    $$PWD/renderer \
+    $$PWD/renderer/opengl_wrappers
+
 
 HEADERS += \
-    inc/camera.h \
-    inc/ebo.h \
-    inc/inputcontroller.h \
-    inc/mainwindow.h \
-    inc/mesh.h \
-    inc/object.h \
-    inc/ocupancygrid.h \
-    inc/opengl.h \
-    inc/pickingobject.h \
-    inc/robot.h \
-    inc/scene.h \
-    inc/shaderclass.h \
-    inc/vao.h \
-    inc/vbo.h \
-    inc/world.h
+    # ---  (App) ---
+    app/mainwindow.h \
+    app/opengl.h \
+    app/inputcontroller.h \
+    \
+    # ---  (Core) ---
+    core/world.h \
+    core/object.h \
+    core/robot.h \
+    core/occupancy_grid.h \
+    \
+    # ---  (Renderer) ---
+    renderer/scene.h \
+    renderer/camera.h \
+    renderer/mesh.h \
+    renderer/shaderclass.h \
+    renderer/pickingobject.h \
+    renderer/opengl_wrappers/vao.h \
+    renderer/opengl_wrappers/vbo.h \
+    renderer/opengl_wrappers/ebo.h
+
+
+SOURCES += \
+    # ---  (App) ---
+    app/main.cpp \
+    app/mainwindow.cpp \
+    app/opengl.cpp \
+    app/inputcontroller.cpp \
+    \
+    # ---  (Core) ---
+    core/world.cpp \
+    core/object.cpp \
+    core/robot.cpp \
+    core/occupancy_grid.cpp \
+    \
+    # ---  (Renderer) ---
+    renderer/scene.cpp \
+    renderer/camera.cpp \
+    renderer/mesh.cpp \
+    renderer/shaderclass.cpp \
+    renderer/pickingobject.cpp \
+    renderer/opengl_wrappers/vao.cpp \
+    renderer/opengl_wrappers/vbo.cpp \
+    renderer/opengl_wrappers/ebo.cpp
+
 
 FORMS += \
-    ui/mainwindow.ui
+    app/mainwindow.ui
+
 
 TRANSLATIONS += \
     Test-That_Robot_pl_PL.ts
@@ -57,4 +75,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    Resource/resources.qrc
+    resources/resources.qrc\

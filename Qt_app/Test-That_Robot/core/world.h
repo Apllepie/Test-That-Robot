@@ -18,7 +18,7 @@
 #include "object.h"
 #include "pickingobject.h"
 #include "robot.h"
-#include "ocupancygrid.h"
+#include "occupancy_grid.h"
 
 
 
