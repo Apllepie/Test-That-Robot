@@ -17,21 +17,27 @@ InputController::~InputController()
     _renderer = nullptr;
 }
 
-void InputController::init(World *world, SceneRenderer *renderer)
+void InputController::init(World *world, SceneRenderer *renderer, float dpr)
 {
     _world  = world;
     _renderer = renderer;
+    _dpr = dpr;
 }
 
-void InputController::handleMousePress(QMouseEvent *e, float dpr) {
-_lastMousePos = e->pos();
-        
+void InputController::handleMousePress(QMouseEvent *e) {
+    _lastMousePos = e->pos();
+    _lastMouseWorldPos = getMouseWorldPos(e->pos(), _dpr);
+
    if (e->button() == Qt::LeftButton) {
         _leftMousePressed = true;
        _renderer->pickAt(*_world, _lastMousePos.x(), _lastMousePos.y());
   }
     else if (e->button() == Qt::RightButton) {
         _rightMousePressed = true;
+      _world->setRobotDestination(_lastMouseWorldPos);
+    }
+  else if(e->button() == Qt::MiddleButton){
+        _middleMosePressed = true;
     }
     
 }
@@ -40,35 +46,48 @@ void InputController::handleMouseRelease(QMouseEvent *e) {
     if(e->button() == Qt::RightButton){
         _rightMousePressed = false;
     }
-    if(e->button() == Qt::LeftButton){
+    else if(e->button() == Qt::LeftButton){
         _leftMousePressed = false;
+    }
+    else if(e->button() == Qt::MiddleButton){
+        _middleMosePressed = false;
     }
 }
 
 void InputController::handleMouseMove(QMouseEvent *e) {
-    if(_rightMousePressed){
+    if(_middleMosePressed){
         QPoint delta = e->pos() - _lastMousePos;
         _lastMousePos = e->pos();
         _renderer->getCamera()->Move(delta);
     }
+    if (_leftMousePressed && _world->getSelectedObjectIndex() != -1) {
+        QVector3D currentMouseWorldPos = getMouseWorldPos(e->pos(), _dpr);
+        QVector3D delta = currentMouseWorldPos - _lastMouseWorldPos;
+       _lastMouseWorldPos = currentMouseWorldPos;
+       _world->translateObject(delta.x(), delta.y());
+
+    }
 }
 
-void InputController::handleWheelEvent(QWheelEvent *e, float dpr)
+void InputController::handleWheelEvent(QWheelEvent *e)
 {
 
-    QVector3D worldPosBeforeZoom = getMouseWorldPos(e->position().toPoint(), dpr);
+    QVector3D worldPosBeforeZoom = getMouseWorldPos(e->position().toPoint(), _dpr);
 
     float delta = e->angleDelta().y() / 120.0f;
     _renderer->getCamera()->moveCloser_Away(-delta);
 
-    QVector3D worldPosAfterZoom = getMouseWorldPos(e->position().toPoint(), dpr);
+    QVector3D worldPosAfterZoom = getMouseWorldPos(e->position().toPoint(), _dpr);
 
     QVector3D difference = worldPosBeforeZoom - worldPosAfterZoom;
     _renderer->getCamera()->pan(difference.x(), difference.y());
 }
 
 void InputController::handleKeyPress(QKeyEvent *e) {
-
+    if(e->key() == Qt::Key_Backspace or e->key() == Qt::Key_Delete){
+        qDebug() << "pressed backspace or delete\n";
+        _world->deleteObject();
+    }
 }
 
 void InputController::handleKeyRelease(QKeyEvent *e)

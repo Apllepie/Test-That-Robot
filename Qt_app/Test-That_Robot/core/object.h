@@ -42,7 +42,8 @@ public:
     virtual void stop(){};
 
     //FUNCTIONS TO TRANSFORM THE OBJECT
-    void Translate(float x, float y, float z);
+    void Translate(float dx, float dy, float dz);
+    void Translate(QVector3D dir);
     void Scale(float x, float y, float z);
     void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
 

@@ -24,6 +24,9 @@ private:
     float _linearspeed;
     float _angularspeed;
     QVector3D _velocity;
+
+    QVector3D _destination; // --- НОВОЕ ПОЛЕ: Точка назначения
+    bool _hasDestination = false;
     
     //functions
     float calculateDistance(float nx, float ny);
@@ -37,8 +40,11 @@ public:
     void update(float dt) override;
     void start() override;
     void stop() override;
+    void setDestination(const QVector3D& dest);
     RobotPos getRobotPos() const;
     void setVelocity(const QVector2D& vel) { _velocity = QVector3D(vel,0.0f); }
+    bool hasDestination() const { return _hasDestination; }
+    QVector3D getDestination() const { return _destination; }
 
 
     float omega; //angular speed

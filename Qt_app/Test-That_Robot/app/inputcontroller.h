@@ -15,12 +15,12 @@ class InputController {
 public:
     InputController();
     ~InputController();
-    void init(World* world, SceneRenderer* renderer);
+    void init(World* world, SceneRenderer* renderer, float dpr);
 
-    void handleMousePress(QMouseEvent* e, float dpr);
+    void handleMousePress(QMouseEvent* e);
     void handleMouseRelease(QMouseEvent* e);
     void handleMouseMove(QMouseEvent* e);
-    void handleWheelEvent(QWheelEvent* e, float dpr);
+    void handleWheelEvent(QWheelEvent* e);
     void handleKeyPress(QKeyEvent* e);
     void handleKeyRelease(QKeyEvent* e);
 
@@ -28,11 +28,13 @@ private:
     World* _world;       // pointer to the world
     SceneRenderer* _renderer; // pointer to the renderer
     QMouseEvent *_e;
+    float _dpr;
 
     QPoint _lastMousePos;
     QVector3D _lastMouseWorldPos;
     bool _leftMousePressed = false;
     bool _rightMousePressed = false;
+    bool _middleMosePressed = false;
 
     //fun
     QVector3D getMouseWorldPos(const QPoint pos, float dpr);

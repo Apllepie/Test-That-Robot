@@ -26,6 +26,8 @@ private:
 
     std::unique_ptr<Mesh> _box;
     std::unique_ptr<Mesh> _robotMesh;
+    std::unique_ptr<Mesh> _destPoint;
+
 
 public:
 
@@ -37,18 +39,23 @@ public:
     void init();
     void update(float dt);
 
-
+    //object
     void addRobot();
     void addBox();
     void deleteObject();
     void selectObject(int index);
     void translateObject(float x, float y);
 
+    //robot
     void startRobot();
     void stopRobot();
+    void setRobotDestination(const QVector3D& destination);
+
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }
     int getSelectedObjectIndex() const { return _selectedObjectIndex; }
+
+
 
 
 };

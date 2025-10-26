@@ -12,10 +12,17 @@ Object::Object(Mesh *mesh)
 }
 
 
-void Object::Translate(float x, float y, float z)
+void Object::Translate(float dx, float dy, float dz)
 {
-    _modelMatrix.translate(x, y, z);
-    updatePositionFromModelMatrix();
+    _x += dx;
+    _y += dy;
+    updateModelMatrixFromPosition();
+}
+void Object::Translate(QVector3D dir)
+{
+    _x = dir.x();
+    _y = dir.y();
+    updateModelMatrixFromPosition();
 }
 
 void Object::Scale(float x, float y, float z)
@@ -25,9 +32,11 @@ void Object::Scale(float x, float y, float z)
         y +=0.4f;
         z +=0.4f;
     }
-
-   _modelMatrix.scale(x, y, z);
-   updatePositionFromModelMatrix();
+    if(_scale == 0.0f){
+        _scale = 1.0f;
+    }
+    _scale *= x;
+    updateModelMatrixFromPosition();
 }
 
 void Object::Rotate(float theta, bool xAxis, bool yAxis, bool zAxis)

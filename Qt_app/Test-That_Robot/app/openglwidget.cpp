@@ -22,7 +22,7 @@ void OpenGLWidget::initializeGL()
     // Pass control of initialization to child components
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions
-    _inputController.init(&_world, &_renderer);
+    _inputController.init(&_world, &_renderer, devicePixelRatioF());
 
     _simTimer.start(); // Start the simulation timer
 
@@ -56,12 +56,12 @@ void OpenGLWidget::addingBox()
 
 void OpenGLWidget::wheelEvent(QWheelEvent *event)
 {
-    _inputController.handleWheelEvent(event, devicePixelRatioF());
+    _inputController.handleWheelEvent(event);
 }
 
 void OpenGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    _inputController.handleMousePress(event, devicePixelRatioF());
+    _inputController.handleMousePress(event);
 }
 
 void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
