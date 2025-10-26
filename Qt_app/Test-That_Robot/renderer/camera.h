@@ -10,7 +10,7 @@
 #include "shaderclass.h"
 #include <math.h>
 
-#define BASE_SPEED 0.0014f
+#define ZOOM_SPEED 0.1f
 
 class Camera : public QOpenGLExtraFunctions
 {
@@ -25,9 +25,12 @@ public:
     void moveCloser_Away(float delta);
     void Move(QPoint delta);
     float getZpos();
+    void setWinSize(int w, int h);
+    void pan(float dx, float dy);
 private:
 
-
+    int _w, _h;
+    float _angle = 45.0f;
     QVector3D camPos;
     QVector3D whereLook;
     QVector3D whereUp;

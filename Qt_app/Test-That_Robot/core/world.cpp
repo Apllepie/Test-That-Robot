@@ -21,7 +21,7 @@ void World::init()
 
     _box->Init();
     _robotMesh->Init();
-    addRobot();
+    //addRobot();
     addBox();
 }
 

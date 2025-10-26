@@ -33,7 +33,8 @@ public:
 
     pixelInfo readPixel(unsigned int x, unsigned int y );
 
-private:
+   // GLuint t_picking; // to remove
+private: 
 
     GLuint t_FBO;
     GLuint t_picking;

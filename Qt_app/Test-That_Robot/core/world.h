@@ -48,6 +48,7 @@ public:
     void stopRobot();
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }
+    int getSelectedObjectIndex() const { return _selectedObjectIndex; }
 
 
 };

@@ -7,6 +7,7 @@
 
 int main(int argc, char *argv[])
 {
+
     QSurfaceFormat format;
     format.setVersion(4, 6);                   // openGL version
     format.setProfile(QSurfaceFormat::CoreProfile);

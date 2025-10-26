@@ -22,14 +22,16 @@ void OpenGLWidget::initializeGL()
     // Pass control of initialization to child components
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions
+    _inputController.init(&_world, &_renderer);
 
     _simTimer.start(); // Start the simulation timer
+
 }
 
 void OpenGLWidget::resizeGL(int w, int h)
 {
-    // Pass control of resizing to the renderer
-    _renderer.resize(w, h);
+    _renderer.resize(w * devicePixelRatio(), h * devicePixelRatio());
+    _renderer.setDevicePixelRatio(devicePixelRatio());
 }
 
 void OpenGLWidget::paintGL()
@@ -52,32 +54,32 @@ void OpenGLWidget::addingBox()
 
 // --- Delegating all input events to InputController ---
 
-// void OpenGLWidget::wheelEvent(QWheelEvent *event)
-// {
-//     _inputController.handleWheelEvent(event);
-// }
+void OpenGLWidget::wheelEvent(QWheelEvent *event)
+{
+    _inputController.handleWheelEvent(event, devicePixelRatioF());
+}
 
-// void OpenGLWidget::mousePressEvent(QMouseEvent *event)
-// {
-//     _inputController.handleMousePress(event, devicePixelRatioF(), height());
-// }
+void OpenGLWidget::mousePressEvent(QMouseEvent *event)
+{
+    _inputController.handleMousePress(event, devicePixelRatioF());
+}
 
-// void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
-// {
-//     _inputController.handleMouseRelease(event);
-// }
+void OpenGLWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    _inputController.handleMouseRelease(event);
+}
 
-// void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
-// {
-//     _inputController.handleMouseMove(event);
-// }
+void OpenGLWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    _inputController.handleMouseMove(event);
+}
 
-// void OpenGLWidget::keyPressEvent(QKeyEvent *event)
-// {
-//     _inputController.handleKeyPress(event);
-// }
+void OpenGLWidget::keyPressEvent(QKeyEvent *event)
+{
+    _inputController.handleKeyPress(event);
+}
 
-// void OpenGLWidget::keyReleaseEvent(QKeyEvent *event)
-// {
-//     _inputController.handleKeyRelease(event);
-// }
+void OpenGLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    _inputController.handleKeyRelease(event);
+}

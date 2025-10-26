@@ -30,18 +30,18 @@ protected:
     void paintGL() override;
 
     // --- Input event handlers ---
-    // void wheelEvent(QWheelEvent *event) override;
-    // void mousePressEvent(QMouseEvent *event) override;
-    // void mouseReleaseEvent(QMouseEvent *event) override;
-    // void mouseMoveEvent(QMouseEvent *event) override;
-    // void keyPressEvent(QKeyEvent *event) override;
-    // void keyReleaseEvent(QKeyEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     // --- Core system components ---
     World _world;
     SceneRenderer _renderer;
-    //InputController _inputController;
+    InputController _inputController;
 
     // --- Timers for animation and physics ---
     QTimer* _frameTimer;      // Forces the widget to repaint at ~60 FPS

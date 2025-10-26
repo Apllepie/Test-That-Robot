@@ -2,32 +2,40 @@
 #define INPUTCONTROLLER_H
 
 #include <QPoint>
+#include "core/world.h"
+#include "renderer/scene_renderer.h"
 
 // predeclare classes to reduce dependencies
 class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
-namespace core { class World; }
 class SceneRenderer;
 
 class InputController {
 public:
-    InputController(core::World* world, SceneRenderer* renderer);
+    InputController();
+    ~InputController();
+    void init(World* world, SceneRenderer* renderer);
 
-    void handleMousePress(QMouseEvent* e, float dpr, int widgetHeight);
+    void handleMousePress(QMouseEvent* e, float dpr);
     void handleMouseRelease(QMouseEvent* e);
     void handleMouseMove(QMouseEvent* e);
-    void handleWheelEvent(QWheelEvent* e);
+    void handleWheelEvent(QWheelEvent* e, float dpr);
     void handleKeyPress(QKeyEvent* e);
     void handleKeyRelease(QKeyEvent* e);
 
 private:
-    core::World* _world;       // pointer to the world
+    World* _world;       // pointer to the world
     SceneRenderer* _renderer; // pointer to the renderer
+    QMouseEvent *_e;
 
     QPoint _lastMousePos;
+    QVector3D _lastMouseWorldPos;
     bool _leftMousePressed = false;
     bool _rightMousePressed = false;
+
+    //fun
+    QVector3D getMouseWorldPos(const QPoint pos, float dpr);
 };
 
 #endif // INPUTCONTROLLER_H

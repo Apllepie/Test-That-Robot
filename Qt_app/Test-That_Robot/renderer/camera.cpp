@@ -13,8 +13,8 @@ void Camera::Init()
     whereUp = QVector3D(0.0f, 1.0f, 0.0f);
 
     view.lookAt(camPos, whereLook, whereUp );
-    //projection.perspective(45.0f, float(width())/height(), 0.1f, 100.0f);
-    projection.perspective(45.0f, float(1), 0.1f, 100.0f);
+    
+    projection.setToIdentity();
 
 }
 
@@ -28,6 +28,8 @@ void Camera::Activate(Shader *shader)
 
 void Camera::changeProjection(int w, int h, float angle, float start, float end)
 {
+    _angle = angle;
+    setWinSize(w, h);
     const float aspect = float(w) / float((h > 0) ? h : 1);
     projection.setToIdentity();
     projection.perspective(angle, aspect, start, end);
@@ -35,18 +37,38 @@ void Camera::changeProjection(int w, int h, float angle, float start, float end)
 
 void Camera::moveCloser_Away(float delta)
 {
-    camPos.setZ(camPos.z()+delta * 0.7f);
+        qDebug() << "Camera move ->>: " << _w << " " << _h;
+    float newZ = camPos.z() + delta * camPos.z() * ZOOM_SPEED;
+
+    if (newZ < 0.1f) {
+        newZ = 0.1f;
+    }
+
+    camPos.setZ(newZ);
+
+    // Обновляем матрицу вида с новым положением камеры
     view.setToIdentity();
     view.lookAt(camPos, whereLook, whereUp);
 }
 
 void Camera::Move(QPoint delta)
 {
-    float speed = BASE_SPEED * camPos.z();
-    camPos.setX(camPos.x() - delta.x() *speed);
-    camPos.setY(camPos.y() + delta.y() * speed);
-    whereLook.setX(camPos.x() - delta.x() *speed);
-    whereLook.setY(camPos.y() + delta.y() * speed);
+
+    if(_w == 0 || _h ==0) return;
+
+
+    float worldUnitsPerPixel = 2.0f * camPos.z() * tanf(qDegreesToRadians(_angle) / 2.0f) / float(_h);
+
+    float dx = delta.x() * worldUnitsPerPixel;
+    float dy = delta.y() * worldUnitsPerPixel;
+
+   camPos.setX(camPos.x() - dx);
+    camPos.setY(camPos.y() + dy);
+
+    // whereLook needs to move as well to maintain direction
+    whereLook.setX(whereLook.x() - dx);
+    whereLook.setY(whereLook.y() + dy);
+
     view.setToIdentity();
     view.lookAt(camPos, whereLook, whereUp);
 }
@@ -54,4 +76,22 @@ void Camera::Move(QPoint delta)
 float Camera::getZpos()
 {
     return camPos.z();
+}
+
+void Camera::setWinSize(int w, int h)
+{
+    _w = w;
+    _h = h;
+}
+
+void Camera::pan(float dx, float dy)
+{
+    camPos.setX(camPos.x() + dx);
+    camPos.setY(camPos.y() + dy);
+
+    whereLook.setX(whereLook.x() + dx);
+    whereLook.setY(whereLook.y() + dy);
+
+    view.setToIdentity();
+    view.lookAt(camPos, whereLook, whereUp);
 }
