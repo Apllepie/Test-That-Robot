@@ -22,6 +22,7 @@ void OpenGLWidget::initializeGL()
     // Pass control of initialization to child components
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions
+    _renderer.finishInitialization(_world);
     _inputController.init(&_world, &_renderer, devicePixelRatioF());
 
     _simTimer.start(); // Start the simulation timer

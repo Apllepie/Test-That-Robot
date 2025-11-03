@@ -18,7 +18,7 @@ protected:
     float _x = 0.0f;
     float _y = 0.0f;
     float _angle = 0.0f;
-    float _scale = 1.0f;
+    QVector3D _scale = QVector3D(1.0f, 1.0f, 1.0f);
     size_t _id;
     
 
@@ -27,8 +27,8 @@ protected:
     QMatrix4x4 _modelMatrix;
     Mesh * _mesh;
 
-    void updateModelMatrixFromPosition();
-    void updatePositionFromModelMatrix();
+    void updateModelMatrixFromParameters();
+    void updateParametersFromModelMatrix();
 
 public:
     Object() = default;
@@ -44,7 +44,8 @@ public:
     //FUNCTIONS TO TRANSFORM THE OBJECT
     void Translate(float dx, float dy, float dz);
     void Translate(QVector3D dir);
-    void Scale(float x, float y, float z);
+    void Scale(float dx, float dy, float dz);
+    void Scale(QVector3D factor);
     void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
 
     QMatrix4x4 getModelMatrix() const {return _modelMatrix;}

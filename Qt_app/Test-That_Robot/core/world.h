@@ -28,7 +28,7 @@ private:
     std::unique_ptr<Mesh> _robotMesh;
     std::unique_ptr<Mesh> _destPoint;
 
-
+    std::unique_ptr<OccupancyGrid> _grid;
 public:
 
     
@@ -54,6 +54,7 @@ public:
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }
     int getSelectedObjectIndex() const { return _selectedObjectIndex; }
+    const OccupancyGrid* getOccupancyGrid() const { return _grid.get(); }
 
 
 

@@ -10,6 +10,8 @@ World::World() {
 
 void World::init()
 {
+
+    _grid = std::make_unique<OccupancyGrid>(40.0f, 40.0f, 0.5f);
     _box = std::make_unique<Mesh>(Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f}));
     _robotMesh = std::make_unique<Mesh>(Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
                                               -0.4f, 0.4f, 0.0f,             1.0f, 0.0f, 1.0f,
@@ -41,15 +43,16 @@ void World::init()
 
 void World::update(float dt)
 {
+    _grid->updateFromObstacles(_primitives);
     for (size_t i = 0; i < _primitives.size(); ++i) {
         _primitives[i]->update(dt);
         if(_primitives[i]->isRobot){
             Robot* robot = dynamic_cast<Robot*>(_primitives[i].get());
             if(robot->hasDestination()){
-                _primitives.front()->Scale(1.0f, 1.0f, 1.0f);
+                _primitives.front()->Scale(QVector3D(1.0f, 1.0f, 1.0f));
                 _primitives.front()->Translate(robot->getDestination());
             }
-            else _primitives.front()->Scale(0.0f, 0.0f, 0.0f);
+            else _primitives.front()->Scale(QVector3D(0.0f, 0.0f, 0.0f));
         }
     }
 }
@@ -58,7 +61,11 @@ void World::update(float dt)
 
 void World::addRobot()
 {
-    _primitives.emplace_back(std::make_unique<Robot>(_robotMesh.get()));
+    auto robot = std::make_unique<Robot>(_robotMesh.get());
+
+    robot->setGrid(_grid.get());
+
+    _primitives.emplace_back(std::move(robot));
 
 }
 

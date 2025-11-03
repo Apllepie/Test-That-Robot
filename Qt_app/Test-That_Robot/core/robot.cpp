@@ -1,7 +1,8 @@
 #include "robot.h"
 
-const float MOVE_SPEED = 2.0f; // speed of the robot in units per second
-const float STOPPING_DISTANCE = 0.1f; //distance to destination to consider "arrived"
+const float MOVE_SPEED =2.0f; // speed of the robot in units per second
+const float STOPPING_DISTANCE =0.01f; //distance to destination to consider "arrived"
+const float BRAKING_DISTANCE =0.5f;
 
 Robot::Robot()
 {
@@ -22,40 +23,53 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
 
 void Robot::update(float dt)
 {
-     if (!_hasDestination) {
+    if (!_hasDestination || !_grid) {
         return;
     }
 
-    // vector from current position to destination
     QVector2D directionVector(_destination.x() - _x, _destination.y() - _y);
+    float distanceToTarget = directionVector.length();
 
-    // Check distance to destination
-    if (directionVector.length() < STOPPING_DISTANCE) {
-        stop(); // We have reached the destination
+    // Если мы уже очень близко, просто "телепортируемся" в цель и останавливаемся
+    if (distanceToTarget < STOPPING_DISTANCE) {
+        _x = _destination.x();
+        _y = _destination.y();
+        stop();
+        updateModelMatrixFromParameters();
         return;
     }
 
-    // 1. Update orientation (angle) of the robot
-    // The angle at which the robot should look to move towards the target
+    float currentSpeed;
+
+    // Логика с "тормозной зоной"
+    if (distanceToTarget < BRAKING_DISTANCE) {
+        // Мы в тормозной зоне. Скорость линейно падает.
+        currentSpeed = MOVE_SPEED * (distanceToTarget / BRAKING_DISTANCE);
+        // Добавим минимальную скорость, чтобы робот не "завяз"
+        currentSpeed = qMax(currentSpeed, 0.2f); // Можно сделать минимальную скорость чуть выше
+    } else {
+        // Мы далеко от цели, едем на полной скорости.
+        currentSpeed = MOVE_SPEED;
+    }
+
+    directionVector.normalize();
+
+    // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
+    // Используем новую, рассчитанную скорость currentSpeed!
+    QVector2D moveStep = directionVector * currentSpeed * dt;
+
+    QVector2D nextPos(_x + moveStep.x(), _y + moveStep.y());
+
+    if (_grid->isOccupied(nextPos)) {
+        stop();
+        return;
+    }
+
+    _x = nextPos.x();
+    _y = nextPos.y();
     _angle = qRadiansToDegrees(qAtan2(directionVector.y(), directionVector.x())) - 90.0f;
 
-    // 2. Update position of the robot
-    // Normalize the direction vector to get a unit vector
-    directionVector.normalize();
-    
-    _x += directionVector.x() * _linearspeed * dt;
-    _y += directionVector.y() * _linearspeed * dt;
-
-    // Update model matrix
-    _modelMatrix.setToIdentity();
-    _modelMatrix.translate(_x, _y, 0);
-    _modelMatrix.rotate(_angle, 0, 0, 1); 
-    _modelMatrix.scale(_scale, _scale, _scale);
-    // _velocity = normalizeVector();
-    // _theta = calculateAngle();
-    // _x += _linearspeed * qCos(_theta) * dt;
-    // _y += _linearspeed * qSin(_theta) * dt;
-    // updateModelMatrixFromPosition();
+    updateModelMatrixFromParameters();
 }
 
 void Robot::start()
@@ -74,6 +88,11 @@ void Robot::setDestination(const QVector3D& dest)
     _destination = dest;
     _hasDestination = true;
     _linearspeed = MOVE_SPEED;
+}
+
+void Robot::setGrid(const OccupancyGrid *grid)
+{
+    _grid = grid;
 }
 
 float Robot::calculateDistance(float nx, float ny){
