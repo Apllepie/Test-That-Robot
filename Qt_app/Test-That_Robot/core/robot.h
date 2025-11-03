@@ -26,9 +26,11 @@ private:
     float _angularspeed;
     QVector3D _velocity;
 
-    QVector3D _destination; // --- НОВОЕ ПОЛЕ: Точка назначения
+    QVector3D _destination; //  destination point
     bool _hasDestination = false;
-    
+    std::vector<QVector2D> _path; // Stores the path as a sequence of points
+    int _currentPathIndex = -1;   // Index of the current target point in the path
+
     const OccupancyGrid* _grid = nullptr;
     //functions
     float calculateDistance(float nx, float ny);
@@ -43,6 +45,7 @@ public:
     void start() override;
     void stop() override;
 
+    void setPath(const std::vector<QVector2D>& path);
     void setDestination(const QVector3D& dest);
     void setGrid(const OccupancyGrid* grid);
 

@@ -13,7 +13,8 @@ INCLUDEPATH += \
     $$PWD/app \
     $$PWD/core \
     $$PWD/renderer \
-    $$PWD/renderer/opengl_wrappers
+    $$PWD/renderer/opengl_wrappers \
+    $$PWD/scripting
 
 
 HEADERS += \
@@ -35,7 +36,9 @@ HEADERS += \
     renderer/pickingobject.h \
     renderer/opengl_wrappers/vao.h \
     renderer/opengl_wrappers/vbo.h \
-    renderer/opengl_wrappers/ebo.h
+    renderer/opengl_wrappers/ebo.h \
+    \
+    scripting/scriptingmanager.h
 
 SOURCES += \
     app/main.cpp \
@@ -57,7 +60,10 @@ SOURCES += \
     renderer/pickingobject.cpp \
     renderer/opengl_wrappers/vao.cpp \
     renderer/opengl_wrappers/vbo.cpp \
-    renderer/opengl_wrappers/ebo.cpp
+    renderer/opengl_wrappers/ebo.cpp \
+    \
+    scripting/scriptingmanager.cpp
+
 FORMS += \
     app/mainwindow.ui
 
@@ -68,7 +74,7 @@ SOL2_PATH = $$PWD/3rdparty/sol2-develop
 # path to inc files 
 INCLUDEPATH += \
     $$LUA_PATH \
-    $$SOL2_PATH/include/sol
+    $$SOL2_PATH/include
 
 # src files
 SOURCES += \

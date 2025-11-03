@@ -23,48 +23,53 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
 
 void Robot::update(float dt)
 {
-    if (!_hasDestination || !_grid) {
+     if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= _path.size()) {
+        stop();
         return;
     }
+QVector2D currentTarget = _path[_currentPathIndex];
 
-    QVector2D directionVector(_destination.x() - _x, _destination.y() - _y);
+    QVector2D directionVector(currentTarget.x() - _x, currentTarget.y() - _y);
     float distanceToTarget = directionVector.length();
 
-    // Если мы уже очень близко, просто "телепортируемся" в цель и останавливаемся
+    // Проверяем, достигли ли мы текущей точки
     if (distanceToTarget < STOPPING_DISTANCE) {
-        _x = _destination.x();
-        _y = _destination.y();
-        stop();
-        updateModelMatrixFromParameters();
-        return;
+        // Если да, переключаемся на следующую
+        _currentPathIndex++;
+        // Если это была последняя точка, останавливаемся
+        if (_currentPathIndex >= _path.size()) {
+            _x = currentTarget.x();
+            _y = currentTarget.y();
+            stop();
+            updateModelMatrixFromParameters();
+            return;
+        }
+        // Иначе, берем новую цель и пересчитываем вектор направления
+        currentTarget = _path[_currentPathIndex];
+        directionVector = QVector2D(currentTarget.x() - _x, currentTarget.y() - _y);
+        distanceToTarget = directionVector.length();
     }
-
+    
+    // Логика скорости и торможения (остается похожей)
     float currentSpeed;
-
-    // Логика с "тормозной зоной"
     if (distanceToTarget < BRAKING_DISTANCE) {
-        // Мы в тормозной зоне. Скорость линейно падает.
         currentSpeed = MOVE_SPEED * (distanceToTarget / BRAKING_DISTANCE);
-        // Добавим минимальную скорость, чтобы робот не "завяз"
-        currentSpeed = qMax(currentSpeed, 0.2f); // Можно сделать минимальную скорость чуть выше
+        currentSpeed = qMax(currentSpeed, 0.2f); 
     } else {
-        // Мы далеко от цели, едем на полной скорости.
         currentSpeed = MOVE_SPEED;
     }
 
     directionVector.normalize();
-
-    // --- ИСПРАВЛЕНИЕ ЗДЕСЬ ---
-    // Используем новую, рассчитанную скорость currentSpeed!
     QVector2D moveStep = directionVector * currentSpeed * dt;
-
     QVector2D nextPos(_x + moveStep.x(), _y + moveStep.y());
 
+    // Проверка на столкновения (остается)
     if (_grid->isOccupied(nextPos)) {
-        stop();
+        stop(); // Останавливаемся, если следующий шаг ведет в препятствие
         return;
     }
 
+    // Обновляем позицию и угол
     _x = nextPos.x();
     _y = nextPos.y();
     _angle = qRadiansToDegrees(qAtan2(directionVector.y(), directionVector.x())) - 90.0f;
@@ -79,9 +84,25 @@ void Robot::start()
 
 void Robot::stop()
 {
-    _linearspeed = 0.0f;
+   _linearspeed = 0.0f;
+    _path.clear(); 
+    _currentPathIndex = -1;
     _hasDestination = false;
 }
+
+void Robot::setPath(const std::vector<QVector2D>& path){
+if (path.empty()) {
+        stop();
+        return;
+    }
+    _path = path;
+    _currentPathIndex = 0; // start from the first point
+    _hasDestination = true;
+    _linearspeed = MOVE_SPEED; // Start moving
+    _destination = QVector3D(path.back().x(), path.back().y(), 0.0f);
+    _hasDestination = true;
+}
+
 
 void Robot::setDestination(const QVector3D& dest)
 {

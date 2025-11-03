@@ -22,6 +22,7 @@ public:
 
 public slots:
     void addingBox(); // Slot for the "Add Box" button
+    void runScript(const QString& scriptCode);
 
 protected:
     // --- Main QOpenGLWidget methods ---

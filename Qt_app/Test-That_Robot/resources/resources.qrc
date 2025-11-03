@@ -30,4 +30,7 @@
         <file>shaders/debug.frag</file>
         <file>shaders/debug.vert</file>
     </qresource>
+    <qresource prefix="/scripts">
+        <file>scripts/exmScript.lua</file>
+    </qresource>
 </RCC>

@@ -20,5 +20,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+private slots:
+    void onRunScriptClicked();
+
 };
 #endif // MAINWINDOW_H

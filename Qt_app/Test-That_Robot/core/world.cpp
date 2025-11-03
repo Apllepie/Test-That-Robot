@@ -38,6 +38,8 @@ void World::init()
     _primitives.emplace_back(std::make_unique<Object>(_destPoint.get()));
     addRobot();
     addBox();
+    _scriptingManager = std::make_unique<ScriptingManager>();
+    _scriptingManager->loadScript(":/scripts/scripts/exmScript.lua");
 }
 
 
@@ -127,13 +129,85 @@ void World::stopRobot()
 
 void World::setRobotDestination(const QVector3D &destination)
 {
-    //finding robot
+    // //finding robot
+    // for (const auto& obj : _primitives) {
+    //     Robot* robot = dynamic_cast<Robot*>(obj.get());
+    //     if (robot) {
+    //         robot->setDestination(destination);
+    //         break; // one robot for now
+    //     }
+    // }
+    Robot* robot = nullptr;
+    // Находим робота
     for (const auto& obj : _primitives) {
-        Robot* robot = dynamic_cast<Robot*>(obj.get());
+        robot = dynamic_cast<Robot*>(obj.get());
         if (robot) {
-            robot->setDestination(destination);
-            break; // one robot for now
+            break; 
         }
+    }
+
+    if (!robot || !_grid) {
+        qWarning() << "Pathfinding error: Robot or Grid not found!";
+        return;
+    }
+
+    // 1. Получаем начальную и конечную точки в мировых координатах
+    RobotPos startPos = robot->getRobotPos();
+    QVector2D startWorld(startPos.x, startPos.y);
+    QVector2D goalWorld(destination.x(), destination.y());
+
+    // 2. Конвертируем мировые координаты в координаты сетки
+    int startGridX, startGridY, goalGridX, goalGridY;
+    if (!_grid->worldToGrid(startWorld, startGridX, startGridY) || 
+        !_grid->worldToGrid(goalWorld, goalGridX, goalGridY)) {
+        qWarning() << "Pathfinding error: Start or Goal is out of grid bounds!";
+        return;
+    }
+
+    // Проверяем, не находится ли цель в препятствии
+    if (_grid->isOccupied(goalWorld)) {
+        qWarning() << "Pathfinding error: Goal is inside an obstacle!";
+        return;
+    }
+
+    qDebug() << "Finding path from grid" << startGridX << "," << startGridY 
+             << "to" << goalGridX << "," << goalGridY;
+
+    // 3. Вызываем ScriptingManager для поиска пути
+    std::vector<QPoint> gridPath = _scriptingManager->findPath(
+        *_grid, 
+        QPoint(startGridX, startGridY), 
+        QPoint(goalGridX, goalGridY)
+    );
+
+    if (gridPath.empty()) {
+        qWarning() << "Path not found!";
+        robot->stop();
+        return;
+    }
+    
+    qDebug() << "Path found with" << gridPath.size() << "waypoints.";
+
+    // 4. Конвертируем путь из сеточных координат обратно в мировые
+    std::vector<QVector2D> worldPath;
+    for (const QPoint& gridPoint : gridPath) {
+        worldPath.push_back(_grid->gridToWorld(gridPoint.x(), gridPoint.y()));
+    }
+
+    // 5. Передаем готовый путь роботу
+    robot->setPath(worldPath);
+}
+
+void World::runPathfindingScript(const std::string &scriptCode)
+{
+    qDebug() << "Executing script from editor...";
+    bool success = _scriptingManager->executeScript(scriptCode);
+    if (success) {
+        qDebug() << "Script executed successfully. Ready to find path.";
+        // Теперь, когда пользователь кликнет правой кнопкой,
+        // будет вызвана функция findPath из только что загруженного скрипта.
+    } else {
+        qDebug() << "Script execution failed.";
     }
 }
 

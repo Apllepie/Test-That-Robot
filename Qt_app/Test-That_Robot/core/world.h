@@ -14,6 +14,7 @@
 #include "robot.h"
 #include "obstacle.h"
 #include "occupancy_grid.h"
+#include "scripting/scriptingmanager.h"
 
 
 
@@ -29,6 +30,7 @@ private:
     std::unique_ptr<Mesh> _destPoint;
 
     std::unique_ptr<OccupancyGrid> _grid;
+    std::unique_ptr<ScriptingManager> _scriptingManager;
 public:
 
     
@@ -50,6 +52,8 @@ public:
     void startRobot();
     void stopRobot();
     void setRobotDestination(const QVector3D& destination);
+    //scripts
+    void runPathfindingScript(const std::string& scriptCode);
 
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }

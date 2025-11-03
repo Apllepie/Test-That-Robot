@@ -53,6 +53,13 @@ void OpenGLWidget::addingBox()
     _world.addBox();
 }
 
+void OpenGLWidget::runScript(const QString &scriptCode)
+{
+    _world.runPathfindingScript(scriptCode.toStdString());
+}
+
+
+
 // --- Delegating all input events to InputController ---
 
 void OpenGLWidget::wheelEvent(QWheelEvent *event)
