@@ -38,6 +38,7 @@ HEADERS += \
     renderer/opengl_wrappers/vbo.h \
     renderer/opengl_wrappers/ebo.h \
     \
+    scripting/luasyntaxhighlighter.h \
     scripting/scriptingmanager.h
 
 SOURCES += \
@@ -62,6 +63,7 @@ SOURCES += \
     renderer/opengl_wrappers/vbo.cpp \
     renderer/opengl_wrappers/ebo.cpp \
     \
+    scripting/luasyntaxhighlighter.cpp \
     scripting/scriptingmanager.cpp
 
 FORMS += \

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
+#include "luasyntaxhighlighter.h"
 #include "ui_mainwindow.h"
+#include "scripting/luasyntaxhighlighter.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -9,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->actionadd_box, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingBox  );
     QObject::connect(ui->actionrun, &QAction::triggered, this, &MainWindow::onRunScriptClicked  );
+    new LuaSyntaxHighlighter(ui->codeEditor->document());
 }
 
 MainWindow::~MainWindow()
