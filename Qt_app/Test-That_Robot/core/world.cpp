@@ -10,8 +10,11 @@ World::World() {
 
 void World::init()
 {
+    //run scripts
+    _scriptingManager = std::make_unique<ScriptingManager>();
+    _scriptingManager->init(this);
 
-    _grid = std::make_unique<OccupancyGrid>(40.0f, 40.0f, 0.5f);
+    _grid = std::make_unique<OccupancyGrid>(40.0f, 40.0f, 0.25f);
     _box = std::make_unique<Mesh>(Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f}));
     _robotMesh = std::make_unique<Mesh>(Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
                                               -0.4f, 0.4f, 0.0f,             1.0f, 0.0f, 1.0f,
@@ -24,58 +27,64 @@ void World::init()
     float o = 0.0f;
     float c = 1.0f;
     _destPoint = std::make_unique<Mesh>(Mesh({o, s, o, o, c, o,
-                                         s, o, o, o, c, o,
-                                         o, -s, o, o, c, o,
-                                         -s, o, o, o, c, o,
-                                         s/3, s/3, o, o, c, o,
-                                        s/3, -s/3, o, o, c, o,
-                                        -s/3, -s/3, o, o, c, o,
-                                            -s/3, s/3, o, o, c, o,},{0,7,4,7,6,4,4,5,6,5,4,1,5,6,2,6,7,3}) );
+                                                 s, o, o, o, c, o,
+                                                 o, -s, o, o, c, o,
+                                                 -s, o, o, o, c, o,
+                                                 s/3, s/3, o, o, c, o,
+                                                 s/3, -s/3, o, o, c, o,
+                                                 -s/3, -s/3, o, o, c, o,
+                                                 -s/3, s/3, o, o, c, o,},{0,7,4,7,6,4,4,5,6,5,4,1,5,6,2,6,7,3}) );
 
     _destPoint->Init();
     _box->Init();
     _robotMesh->Init();
-    _primitives.emplace_back(std::make_unique<Object>(_destPoint.get()));
-    addRobot();
-    addBox();
-    _scriptingManager = std::make_unique<ScriptingManager>();
-    _scriptingManager->loadScript(":/scripts/scripts/exmScript.lua");
+    addRobotAt(0, 0);
+    addBoxAt(0, 0);
 }
 
 
 void World::update(float dt)
 {
     _grid->updateFromObstacles(_primitives);
-    for (size_t i = 0; i < _primitives.size(); ++i) {
-        _primitives[i]->update(dt);
-        if(_primitives[i]->isRobot){
-            Robot* robot = dynamic_cast<Robot*>(_primitives[i].get());
-            if(robot->hasDestination()){
-                _primitives.front()->Scale(QVector3D(1.0f, 1.0f, 1.0f));
-                _primitives.front()->Translate(robot->getDestination());
+
+    // 1. Обновляем логику всех объектов (этот цикл остается)
+    for (const auto& obj : _primitives) {
+        obj->update(dt);
+    }
+
+    // 2. УПРАВЛЯЕМ ВИДИМОСТЬЮ МАРКЕРОВ
+    // Пройдемся по всем роботам на сцене
+    for (const auto& obj : _primitives)
+    {
+        // Нас интересуют только объекты-роботы
+        if (auto robot = dynamic_cast<Robot*>(obj.get()))
+        {
+            // Получаем ID маркера, который "привязан" к этому роботу
+            size_t marker_id = robot->getDestinationMarkerId();
+            if (marker_id == 0) continue; // Если у робота нет маркера, пропускаем
+
+            // Находим сам объект-маркер по его ID
+            Object* marker = getObjectById(marker_id);
+            if (!marker) continue; // Если по какой-то причине маркер не найден, пропускаем
+
+            // Теперь для этого конкретного маркера принимаем одно из двух решений:
+            if (robot->hasDestination()) {
+                // РЕШЕНИЕ А: У робота ЕСТЬ цель.
+                // Делаем маркер видимым и перемещаем его в точку назначения.
+                marker->Scale(QVector3D(1.0f, 1.0f, 1.0f));
+                marker->Translate(robot->getDestination());
+            } else {
+                // РЕШЕНИЕ Б: У робота НЕТ цели.
+                // Делаем маркер невидимым.
+                marker->Scale(QVector3D(0.0f, 0.0f, 0.0f));
             }
-            else _primitives.front()->Scale(QVector3D(0.0f, 0.0f, 0.0f));
         }
     }
 }
 
 
 
-void World::addRobot()
-{
-    auto robot = std::make_unique<Robot>(_robotMesh.get());
 
-    robot->setGrid(_grid.get());
-
-    _primitives.emplace_back(std::move(robot));
-
-}
-
-void World::addBox()
-{
-    _primitives.emplace_back(std::make_unique<Obstacle>(_box.get(),1.0f,1.0f));
-
-}
 
 void World::deleteObject()
 {
@@ -87,7 +96,7 @@ void World::deleteObject()
         _primitives.erase(_primitives.begin() + _selectedObjectIndex);
     }
     _selectedObjectIndex = -1;
-    
+
 }
 
 void World::selectObject(int index)
@@ -128,89 +137,115 @@ void World::stopRobot()
 }
 
 void World::setRobotDestination(const QVector3D &destination)
+{   // Проверяем, выбран ли какой-то объект
+    if (_selectedObjectIndex == -1) {
+        qWarning() << "Right-clicked, but no object selected.";
+        return;
+    }
+
+    // Пытаемся преобразовать выбранный объект в робота
+    Robot* selected_robot = dynamic_cast<Robot*>(_primitives[_selectedObjectIndex].get());
+
+    if (selected_robot) {
+        // Если это робот, устанавливаем ему цель
+        selected_robot->setDestination(destination);
+        qDebug() << "Destination set for selected robot ID" << selected_robot->getId() << "to" << destination;
+    } else {
+        qWarning() << "Right-clicked, but the selected object is not a robot.";
+    }
+}
+
+std::vector<size_t> World::getAllRobotIDs()
 {
-    // //finding robot
-    // for (const auto& obj : _primitives) {
-    //     Robot* robot = dynamic_cast<Robot*>(obj.get());
-    //     if (robot) {
-    //         robot->setDestination(destination);
-    //         break; // one robot for now
-    //     }
-    // }
-    Robot* robot = nullptr;
-    // Находим робота
-    for (const auto& obj : _primitives) {
-        robot = dynamic_cast<Robot*>(obj.get());
-        if (robot) {
-            break; 
+    std::vector<size_t> robot_ids;
+    for (const auto& obj_ptr : _primitives)
+    {
+        if (dynamic_cast<Robot*>(obj_ptr.get()))
+        {
+            robot_ids.push_back(obj_ptr->getId());
         }
     }
 
-    if (!robot || !_grid) {
-        qWarning() << "Pathfinding error: Robot or Grid not found!";
-        return;
-    }
-
-    // 1. Получаем начальную и конечную точки в мировых координатах
-    RobotPos startPos = robot->getRobotPos();
-    QVector2D startWorld(startPos.x, startPos.y);
-    QVector2D goalWorld(destination.x(), destination.y());
-
-    // 2. Конвертируем мировые координаты в координаты сетки
-    int startGridX, startGridY, goalGridX, goalGridY;
-    if (!_grid->worldToGrid(startWorld, startGridX, startGridY) || 
-        !_grid->worldToGrid(goalWorld, goalGridX, goalGridY)) {
-        qWarning() << "Pathfinding error: Start or Goal is out of grid bounds!";
-        return;
-    }
-
-    // Проверяем, не находится ли цель в препятствии
-    if (_grid->isOccupied(goalWorld)) {
-        qWarning() << "Pathfinding error: Goal is inside an obstacle!";
-        return;
-    }
-
-    qDebug() << "Finding path from grid" << startGridX << "," << startGridY 
-             << "to" << goalGridX << "," << goalGridY;
-
-    // 3. Вызываем ScriptingManager для поиска пути
-    std::vector<QPoint> gridPath = _scriptingManager->findPath(
-        *_grid, 
-        QPoint(startGridX, startGridY), 
-        QPoint(goalGridX, goalGridY)
-    );
-
-    if (gridPath.empty()) {
-        qWarning() << "Path not found!";
-        robot->stop();
-        return;
-    }
-    
-    qDebug() << "Path found with" << gridPath.size() << "waypoints.";
-
-    // 4. Конвертируем путь из сеточных координат обратно в мировые
-    std::vector<QVector2D> worldPath;
-    for (const QPoint& gridPoint : gridPath) {
-        worldPath.push_back(_grid->gridToWorld(gridPoint.x(), gridPoint.y()));
-    }
-
-    // 5. Передаем готовый путь роботу
-    robot->setPath(worldPath);
+    return robot_ids;
 }
-
-void World::runPathfindingScript(const std::string &scriptCode)
+Object* World::getObjectById(size_t id)
 {
-    qDebug() << "Executing script from editor...";
-    bool success = _scriptingManager->executeScript(scriptCode);
-    if (success) {
-        qDebug() << "Script executed successfully. Ready to find path.";
-        // Теперь, когда пользователь кликнет правой кнопкой,
-        // будет вызвана функция findPath из только что загруженного скрипта.
-    } else {
-        qDebug() << "Script execution failed.";
+    for (const auto& obj_ptr : _primitives) {
+        if (obj_ptr->getId() == id) {
+            return obj_ptr.get();
+        }
     }
+    return nullptr;
 }
 
+Robot *World::getRobotById(size_t robot_id)
+{
+    for (const auto& obj_ptr : _primitives) {
+        if (obj_ptr->getId() == robot_id) {
+            return dynamic_cast<Robot*>(obj_ptr.get());
+        }
+    }
+    return nullptr;
+}
+
+
+//Scripts
+void World::runMainScript(const std::string &scriptCode)
+{
+    _scriptingManager->runScriptFromEditor(scriptCode);
+}
+
+
+
+
+void World::clearMap()
+{
+    if (_primitives.empty()) {
+        return;
+    }
+
+    std::vector<std::unique_ptr<Object>> objectsToKeep;
+
+    for (auto& obj : _primitives) {
+        // Оставляем объект, только если он НЕ робот, НЕ препятствие И НЕ маркер цели.
+        if (!dynamic_cast<Robot*>(obj.get()) &&
+            !dynamic_cast<Obstacle*>(obj.get()) &&
+            obj->getMesh() != _destPoint.get())
+        {
+            objectsToKeep.push_back(std::move(obj));
+        }
+    }
+
+    _primitives.swap(objectsToKeep);
+    _selectedObjectIndex = -1;
+    qDebug() << "Map cleared.";
+}
+
+void World::addBoxAt(float x, float y)
+{
+    auto box = std::make_unique<Obstacle>(_box.get(), 1.0f, 1.0f);
+    box->Translate(QVector3D(x, y, 0));
+    _primitives.emplace_back(std::move(box));
+}
+
+void World::addRobotAt(float x, float y)
+{
+    auto robot = std::make_unique<Robot>(_robotMesh.get());
+    robot->Translate(QVector3D(x, y, 0));
+    robot->setGrid(_grid.get());
+    robot->setId(_nextObjectId++); // Используем общий счетчик ID
+
+    //
+    auto dest_marker = std::make_unique<Object>(_destPoint.get());
+    dest_marker->setId(_nextObjectId++); // Даем маркеру свой уникальный ID
+
+    //
+    robot->setDestinationMarkerId(dest_marker->getId());
+
+    //
+    _primitives.emplace_back(std::move(robot));
+    _primitives.emplace_back(std::move(dest_marker));
+}
 
 
 

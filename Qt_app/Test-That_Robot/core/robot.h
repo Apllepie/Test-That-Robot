@@ -30,6 +30,7 @@ private:
     bool _hasDestination = false;
     std::vector<QVector2D> _path; // Stores the path as a sequence of points
     int _currentPathIndex = -1;   // Index of the current target point in the path
+    size_t _destinationMarkerId = 0;
 
     const OccupancyGrid* _grid = nullptr;
     //functions
@@ -53,6 +54,9 @@ public:
     void setVelocity(const QVector2D& vel) { _velocity = QVector3D(vel,0.0f); }
     bool hasDestination() const { return _hasDestination; }
     QVector3D getDestination() const { return _destination; }
+    
+    void setDestinationMarkerId(size_t marker_id) { _destinationMarkerId = marker_id; }
+    size_t getDestinationMarkerId() const { return _destinationMarkerId; }
 
 
     float omega; //angular speed

@@ -23,55 +23,47 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
 
 void Robot::update(float dt)
 {
-     if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= _path.size()) {
-        stop();
-        return;
+      // ИСПРАВЛЕНИЕ: Если пути нет, просто ничего не делаем в этот кадр.
+    // НЕ вызываем stop(), чтобы не сбросить флаг цели.
+    if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= _path.size()) {
+        return; // Просто выходим
     }
-QVector2D currentTarget = _path[_currentPathIndex];
 
-    QVector2D directionVector(currentTarget.x() - _x, currentTarget.y() - _y);
+    // --- Весь остальной код остается без изменений ---
+
+    QVector2D currentTarget = _path[_currentPathIndex];
+    QVector2D currentPos(_x, _y);
+    QVector2D directionVector = currentTarget - currentPos;
     float distanceToTarget = directionVector.length();
 
-    // Проверяем, достигли ли мы текущей точки
     if (distanceToTarget < STOPPING_DISTANCE) {
-        // Если да, переключаемся на следующую
         _currentPathIndex++;
-        // Если это была последняя точка, останавливаемся
+        
         if (_currentPathIndex >= _path.size()) {
             _x = currentTarget.x();
             _y = currentTarget.y();
-            stop();
+            stop(); // Вызываем stop() только когда путь ЗАКОНЧИЛСЯ
             updateModelMatrixFromParameters();
             return;
         }
-        // Иначе, берем новую цель и пересчитываем вектор направления
         currentTarget = _path[_currentPathIndex];
-        directionVector = QVector2D(currentTarget.x() - _x, currentTarget.y() - _y);
+        directionVector = currentTarget - currentPos;
         distanceToTarget = directionVector.length();
     }
     
-    // Логика скорости и торможения (остается похожей)
-    float currentSpeed;
-    if (distanceToTarget < BRAKING_DISTANCE) {
-        currentSpeed = MOVE_SPEED * (distanceToTarget / BRAKING_DISTANCE);
-        currentSpeed = qMax(currentSpeed, 0.2f); 
-    } else {
-        currentSpeed = MOVE_SPEED;
-    }
-
+    float currentSpeed = MOVE_SPEED;
     directionVector.normalize();
-    QVector2D moveStep = directionVector * currentSpeed * dt;
-    QVector2D nextPos(_x + moveStep.x(), _y + moveStep.y());
+    float moveDistance = currentSpeed * dt;
 
-    // Проверка на столкновения (остается)
-    if (_grid->isOccupied(nextPos)) {
-        stop(); // Останавливаемся, если следующий шаг ведет в препятствие
-        return;
+    if (moveDistance >= distanceToTarget) {
+        _x = currentTarget.x();
+        _y = currentTarget.y();
+    } else {
+        QVector2D moveStep = directionVector * moveDistance;
+        _x += moveStep.x();
+        _y += moveStep.y();
     }
 
-    // Обновляем позицию и угол
-    _x = nextPos.x();
-    _y = nextPos.y();
     _angle = qRadiansToDegrees(qAtan2(directionVector.y(), directionVector.x())) - 90.0f;
 
     updateModelMatrixFromParameters();

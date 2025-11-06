@@ -51,6 +51,8 @@ public:
     QMatrix4x4 getModelMatrix() const {return _modelMatrix;}
     void setModelMatrix(const QMatrix4x4 &newModelMatrix) {_modelMatrix = newModelMatrix;}
     Mesh* getMesh() const {return _mesh; }
+    size_t getId() const {return _id; }
+    void setId(size_t id) {_id = id; }
 };
 
 #endif // OBJECT_H

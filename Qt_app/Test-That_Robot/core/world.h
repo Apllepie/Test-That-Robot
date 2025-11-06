@@ -24,6 +24,7 @@ private:
    std::vector<std::unique_ptr<Object>> _primitives;
     bool _isSelected = false;
     int _selectedObjectIndex = -1;
+    size_t _nextObjectId = 1;
 
     std::unique_ptr<Mesh> _box;
     std::unique_ptr<Mesh> _robotMesh;
@@ -42,8 +43,6 @@ public:
     void update(float dt);
 
     //object
-    void addRobot();
-    void addBox();
     void deleteObject();
     void selectObject(int index);
     void translateObject(float x, float y);
@@ -52,8 +51,18 @@ public:
     void startRobot();
     void stopRobot();
     void setRobotDestination(const QVector3D& destination);
+    void startRobotOnPlannedPath();
+   // const std::vector<QVector2D>& getPlannedPath() const { return _plannedPath; }
+
+    Object* getObjectById(size_t id);
     //scripts
-    void runPathfindingScript(const std::string& scriptCode);
+    std::vector<size_t> getAllRobotIDs();
+    Robot* getRobotById(size_t robot_id);
+
+    void runMainScript(const std::string& scriptCode);
+    void clearMap();
+    void addBoxAt(float x, float y);
+    void addRobotAt(float x, float y);
 
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }

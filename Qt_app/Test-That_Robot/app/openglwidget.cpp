@@ -50,12 +50,12 @@ void OpenGLWidget::paintGL()
 void OpenGLWidget::addingBox()
 {
     // Send command to the world
-    _world.addBox();
+    _world.addBoxAt(0, 0);
 }
 
 void OpenGLWidget::runScript(const QString &scriptCode)
 {
-    _world.runPathfindingScript(scriptCode.toStdString());
+    _world.runMainScript(scriptCode.toStdString());
 }
 
 
