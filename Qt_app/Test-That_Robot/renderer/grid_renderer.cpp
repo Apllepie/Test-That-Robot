@@ -17,6 +17,7 @@ void GridRenderer::init(const OccupancyGrid& grid)
 
     _occupancyShader = std::make_unique<Shader>(":/Shaders/shaders/occupancy.vert", ":/Shaders/shaders/occupancy.frag");
     float cellSize = grid.getCellSize();
+    //float cellSize = 1.0f;
     float s = cellSize / 2.0f;
     float vertices[] = { -s, -s, s, -s, s, s, s, s, -s, s, -s, -s };
 
@@ -48,13 +49,13 @@ void GridRenderer::init(const OccupancyGrid& grid)
 
     // Горизонтальные линии
     for (int i = 0; i <= gridHeight; ++i) {
-        float y = minCorner.y() + i * cellSize;
+        float y = minCorner.y() + i * 1.0f; // world cel size
         lineVertices.push_back(minCorner.x()); lineVertices.push_back(y);
         lineVertices.push_back(maxCorner.x()); lineVertices.push_back(y);
     }
     // Вертикальные линии
     for (int i = 0; i <= gridWidth; ++i) {
-        float x = minCorner.x() + i * cellSize;
+        float x = minCorner.x() + i * 1.0f; // world cel size
         lineVertices.push_back(x); lineVertices.push_back(minCorner.y());
         lineVertices.push_back(x); lineVertices.push_back(maxCorner.y());
     }
@@ -82,7 +83,14 @@ void GridRenderer::render(const OccupancyGrid& grid, const Camera& camera)
     glDrawArrays(GL_LINES, 0, _lineVertexCount);
 
     // --- Фаза 2: Рисуем ЗАНЯТЫЕ ЯЧЕЙКИ (как и раньше) ---
-    std::vector<QVector2D> occupiedPositions = grid.getOccupiedCellWorldPositions();
+    std::vector<std::pair<QVector2D, unsigned char>> occupiedPositionsP;
+    occupiedPositionsP =  grid.getOccupiedCellWorldPositions();
+
+    std::vector<QVector2D> occupiedPositions;
+    for(size_t i =0; i < occupiedPositionsP.size(); ++i){
+        occupiedPositions.push_back(occupiedPositionsP[i].first);
+    }
+
     if (occupiedPositions.empty()) {
         glBindVertexArray(0); // Отвязываем VAO линий и выходим
         return;

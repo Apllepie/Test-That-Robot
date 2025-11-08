@@ -5,6 +5,7 @@
 #include <object.h>
 #include <obstacle.h>
 
+#define OCCUPANCY_THRESHOLD 127
 
 
 class OccupancyGrid{
@@ -14,7 +15,7 @@ private:
     float _cellSize;
     QVector2D _origin; //grid corner
 
-    std::vector<bool> _gridData;
+    std::vector<unsigned char> _gridData;
 public:
     OccupancyGrid(float worldW, float worldH, float cellSize);
 
@@ -28,9 +29,10 @@ public:
     QVector2D gridToWorld(int gridX, int gridY) const;
 
     // set
-    void setCell(int gridX, int gridY, bool isOccupied);
+    void setCell(int gridX, int gridY, unsigned char value);
     bool isOccupied(int gridX, int gridY) const;
     bool isOccupied(const QVector2D& worldPos) const;
+    unsigned char getCellValue(int gridX, int gridY) const;
 
     // get
     int getWidth() const { return _width; }
@@ -38,9 +40,9 @@ public:
     float getCellSize() const { return _cellSize; }
 
     // for visualisation
-    std::vector<QVector2D> getOccupiedCellWorldPositions() const;
+    std::vector<std::pair<QVector2D, unsigned char>> getOccupiedCellWorldPositions() const;
 };
-    
+
 
 
 #endif // OCCUPANCYGRID_H
