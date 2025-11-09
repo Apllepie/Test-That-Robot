@@ -20,69 +20,80 @@ void OccupancyGrid::clear()
 
 void OccupancyGrid::updateFromObstacles(const std::vector<std::unique_ptr<Object>>& primitives)
 {
-    clear();
+   clear(); // Всегда начинаем с чистой сетки
 
+    // --- ЭТАП 1: Надежная растеризация препятствий с помощью суперсэмплинга ---
     for (const auto& obj : primitives) {
-        // Try to cast Object* to Obstacle*
         const Obstacle* obstacle = dynamic_cast<const Obstacle*>(obj.get());
-
         if (obstacle) {
-            // Получаем OBB (Oriented Bounding Box) препятствия
             QMatrix4x4 model = obstacle->getModelMatrix();
             bool invertible;
             QMatrix4x4 invModel = model.inverted(&invertible);
-            if (!invertible) continue; // Не можем обработать, если матрица не обратима
+            if (!invertible) continue;
 
             float width = obstacle->getWidth();
             float height = obstacle->getHeight();
-
-            // Определяем более широкую AABB-область для проверки, учитывая возможное вращение
+            
+            // Определяем область для проверки, немного расширив ее
             float max_dim = sqrt(pow(width, 2) + pow(height, 2));
             QVector2D pos(model.column(3).x(), model.column(3).y());
-            QVector2D minCorner = pos - QVector2D(max_dim / 2.0f, max_dim / 2.0f);
-            QVector2D maxCorner = pos + QVector2D(max_dim / 2.0f, max_dim / 2.0f);
+            QVector2D minCorner = pos - QVector2D(max_dim, max_dim);
+            QVector2D maxCorner = pos + QVector2D(max_dim, max_dim);
 
-            // Конвертируем углы AABB в координаты сетки, чтобы ограничить цикл
             int gridMinX, gridMinY, gridMaxX, gridMaxY;
             worldToGrid(minCorner, gridMinX, gridMinY);
             worldToGrid(maxCorner, gridMaxX, gridMaxY);
 
-            // Цикл по всем ячейкам, которые могут быть затронуты
-            for (int y = gridMinY; y <= gridMaxY; y = y + 1) {
-                for (int x = gridMinX; x <= gridMaxX; x = x + 1) {
+            // Проходим по всем ячейкам, которые могут быть затронуты
+            for (int y = gridMinY; y <= gridMaxY; ++y) {
+                for (int x = gridMinX; x <= gridMaxX; ++x) {
                     if (x < 0 || x >= _width || y < 0 || y >= _height) continue;
 
-                    // Суперсэмплинг внутри ячейки (x, y)
-                    int occupied_sub_cells = 0;
-                    const int SUBDIVISIONS = 5; // 5x5 подсетка
-                    float subCellSize = _cellSize / SUBDIVISIONS;
+                    bool cell_is_occupied = false;
+                    const int SUBDIVISIONS = 3; // Проверяем сетку 3x3 внутри ячейки
+                    float subCellStep = _cellSize / SUBDIVISIONS;
 
-                    for (int sy = 0; sy < SUBDIVISIONS; sy = sy + 1) {
-                        for (int sx = 0; sx < SUBDIVISIONS; sx = sx + 1) {
+                    // Суперсэмплинг: проверяем несколько точек внутри ячейки
+                    for (int sy = 0; sy < SUBDIVISIONS; ++sy) {
+                        for (int sx = 0; sx < SUBDIVISIONS; ++sx) {
+                            QVector2D sub_point_world = gridToWorld(x,y) - QVector2D(_cellSize/2.0, _cellSize/2.0) + 
+                                                        QVector2D((sx + 0.5f) * subCellStep, (sy + 0.5f) * subCellStep);
 
-                            // Получаем мировые координаты центра под-ячейки
-                            QVector2D cell_corner = gridToWorld(x, y) - QVector2D(_cellSize / 2.0f, _cellSize / 2.0f);
-                            QVector2D sub_cell_center_world = cell_corner +
-                                                              QVector2D((sx + 0.5f) * subCellSize, (sy + 0.5f) * subCellSize);
-
-                            // Трансформируем точку в локальные координаты препятствия
-                            QVector4D localPoint = invModel * QVector4D(sub_cell_center_world.x(), sub_cell_center_world.y(), 0.0f, 1.0f);
-
-                            // Проверяем, находится ли точка внутри локального AABB (-w/2..w/2, -h/2..h/2)
+                            QVector4D localPoint = invModel * QVector4D(sub_point_world.x(), sub_point_world.y(), 0.0f, 1.0f);
+                            
+                            // Проверяем, находится ли суб-точка внутри локального AABB препятствия
                             if (std::abs(localPoint.x()) < width / 2.0f && std::abs(localPoint.y()) < height / 2.0f) {
-                                occupied_sub_cells = occupied_sub_cells + 1;
+                                setCell(x, y, 255);
+                                cell_is_occupied = true;
+                                break; // Ячейка точно занята, можно переходить к следующей
                             }
                         }
+                        if (cell_is_occupied) break;
                     }
+                }
+            }
+        }
+    }
 
-                    // Рассчитываем и устанавливаем значение занятости
-                    if (occupied_sub_cells > 0) {
-                        unsigned char occupancy_value = static_cast<unsigned char>((static_cast<float>(occupied_sub_cells) / (SUBDIVISIONS * SUBDIVISIONS)) * 255.0f);
+    // --- ЭТАП 2: "Раздувание" препятствий (создание C-Space) ---
+    const float ROBOT_RADIUS = 0.4f; // Немного увеличим для надежности (диагональ робота ~0.56)
+    int inflation_in_cells = static_cast<int>(std::ceil(ROBOT_RADIUS / _cellSize));
+    if (inflation_in_cells == 0) return;
+    
+    std::vector<unsigned char> original_grid_data = _gridData;
+    
+    for (int y = 0; y < _height; ++y) {
+        for (int x = 0; x < _width; ++x) {
+            if (original_grid_data[y * _width + x] > OCCUPANCY_THRESHOLD) {
+                for (int iy = -inflation_in_cells; iy <= inflation_in_cells; ++iy) {
+                    for (int ix = -inflation_in_cells; ix <= inflation_in_cells; ++ix) {
+                        if (ix * ix + iy * iy > inflation_in_cells * inflation_in_cells) continue;
+                        
+                        int nx = x + ix;
+                        int ny = y + iy;
 
-                        // Обновляем ячейку, беря максимальное значение, если несколько препятствий пересекаются
-                        int grid_index = y * _width + x;
-                        if (occupancy_value > _gridData[grid_index]) {
-                            setCell(x, y, occupancy_value);
+                        if (nx >= 0 && nx < _width && ny >= 0 && ny < _height) {
+                            setCell(nx, ny, 255);
                         }
                     }
                 }

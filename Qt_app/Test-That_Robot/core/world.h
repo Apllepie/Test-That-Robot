@@ -66,11 +66,13 @@ public:
     void clearMap();
     void addBoxAt(float x, float y);
     void addRobotAt(float x, float y);
+    void updateOccupancyGrid();
 
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }
     int getSelectedObjectIndex() const { return _selectedObjectIndex; }
     const OccupancyGrid* getOccupancyGrid() const { return _grid.get(); }
+    bool checkLineOfSight(const QVector2D& p1, const QVector2D& p2) const;
 
 
 //save

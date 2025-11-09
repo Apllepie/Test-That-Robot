@@ -20,6 +20,7 @@ public:
     void clearMap();
     void addRobotAt(float x, float y);
     void addBoxAt(float x, float y);
+    void updateOccupancyGrid();
 
     // get functions
     sol::table getAllRobotIDs(sol::this_state s);
@@ -28,6 +29,16 @@ public:
 
     // robot manipulating
     void setRobotPath(size_t robot_id, sol::table path_table);
+
+    // Occupancy Grid API
+    sol::table getGridDimensions(sol::this_state s);
+    bool isCellOccupied(int x, int y);
+    sol::table worldToGrid(float x, float y, sol::this_state s);
+    sol::table gridToWorld(int x, int y, sol::this_state s);
+
+    // geometric API
+    sol::table getAllObstacles(sol::this_state s);
+    bool checkLineOfSight(float x1, float y1, float x2, float y2);
 };
 
 #endif // SCRIPTAPIBRIDGE_H

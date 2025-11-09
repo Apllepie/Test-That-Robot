@@ -48,13 +48,13 @@ void GridRenderer::init(const OccupancyGrid& grid)
     QVector2D maxCorner = grid.gridToWorld(gridWidth-1, gridHeight-1) + QVector2D(cellSize/2.0f, cellSize/2.0f);
 
     // Горизонтальные линии
-    for (int i = 0; i <= gridHeight; ++i) {
+    for (int i = 0; i <= gridHeight * cellSize; ++i) {
         float y = minCorner.y() + i * 1.0f; // world cel size
         lineVertices.push_back(minCorner.x()); lineVertices.push_back(y);
         lineVertices.push_back(maxCorner.x()); lineVertices.push_back(y);
     }
     // Вертикальные линии
-    for (int i = 0; i <= gridWidth; ++i) {
+    for (int i = 0; i <= gridWidth * cellSize; ++i) {
         float x = minCorner.x() + i * 1.0f; // world cel size
         lineVertices.push_back(x); lineVertices.push_back(minCorner.y());
         lineVertices.push_back(x); lineVertices.push_back(maxCorner.y());

@@ -193,9 +193,15 @@ Robot *World::getRobotById(size_t robot_id)
 void World::runMainScript(const std::string &scriptCode)
 {
     _scriptingManager->runScriptFromEditor(scriptCode);
+
 }
 
-
+void World::updateOccupancyGrid()
+{
+    if (_grid) {
+        _grid->updateFromObstacles(_primitives);
+    }
+}
 
 
 void World::clearMap()
@@ -245,6 +251,27 @@ void World::addRobotAt(float x, float y)
     //
     _primitives.emplace_back(std::move(robot));
     _primitives.emplace_back(std::move(dest_marker));
+}
+bool World::checkLineOfSight(const QVector2D& p1, const QVector2D& p2) const
+{
+    for (const auto& obj : _primitives) {
+        if (const Obstacle* obstacle = dynamic_cast<const Obstacle*>(obj.get())) {
+            // AABB-тест для быстрой отбраковки
+            QVector3D pos = obj->getModelMatrix().column(3).toVector3D();
+            QVector3D scale = obj->getScale(); // Получаем масштаб из объекта
+            float halfWidth = scale.x() / 2.0f;
+            float halfHeight = scale.y() / 2.0f;
+            
+            // Простая проверка пересечения линии с AABB препятствия
+            // (Это не совсем точно для повернутых объектов, но для начала сойдет)
+            QRectF obstacleBounds(pos.x() - halfWidth, pos.y() - halfHeight, scale.x(), scale.y());
+            if (obstacleBounds.intersects(QRectF(p1.toPointF(), p2.toPointF()))) {
+                // Более точная проверка нужна здесь, но пока будем считать, что пересечение есть
+                return false; // Нет прямой видимости
+            }
+        }
+    }
+    return true; // Прямая видимость есть
 }
 
 
