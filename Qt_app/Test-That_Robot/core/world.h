@@ -9,6 +9,9 @@
 #include <QElapsedTimer>
 #include <memory.h>
 
+#include <QJsonObject>
+#include <QJsonArray>
+
 
 #include "object.h"
 #include "robot.h"
@@ -70,7 +73,10 @@ public:
     const OccupancyGrid* getOccupancyGrid() const { return _grid.get(); }
 
 
-
+//save
+    QJsonObject saveState() const;
+    void loadState(const QJsonObject &state);
+    void clearAllForLoad();
 
 };
 

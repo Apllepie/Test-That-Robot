@@ -248,4 +248,70 @@ void World::addRobotAt(float x, float y)
 }
 
 
+//Save and load
+void World::clearAllForLoad()
+{
+    _primitives.clear();
+    _selectedObjectIndex = -1;
+    _nextObjectId = 1; // Сбрасываем счетчик ID
+}
+
+QJsonObject World::saveState() const
+{
+    QJsonObject worldState;
+    QJsonArray objectsArray;
+
+    for (const auto& obj : _primitives) {
+        // Пропускаем маркеры назначения, так как они создаются динамически
+        if (obj->getMesh() == _destPoint.get()) {
+            continue;
+        }
+
+        QJsonObject objJson;
+        objJson["type"] = obj->getType();
+        objJson["x"] = obj->getX();
+        objJson["y"] = obj->getY();
+
+        // Если это препятствие, сохраним его размеры
+        if (const Obstacle* obstacle = dynamic_cast<const Obstacle*>(obj.get())) {
+            objJson["width"] = obstacle->getWidth();
+            objJson["height"] = obstacle->getHeight();
+        }
+
+        objectsArray.append(objJson);
+    }
+
+    worldState["objects"] = objectsArray;
+    return worldState;
+}
+
+void World::loadState(const QJsonObject &state)
+{
+    clearAllForLoad(); // Полностью очищаем мир
+
+    if (state.contains("objects") && state["objects"].isArray()) {
+        QJsonArray objectsArray = state["objects"].toArray();
+
+        for (const QJsonValue &objValue : objectsArray) {
+            QJsonObject objJson = objValue.toObject();
+
+            QString type = objJson["type"].toString();
+            float x = objJson["x"].toDouble();
+            float y = objJson["y"].toDouble();
+
+            if (type == "robot") {
+                addRobotAt(x, y);
+            } else if (type == "obstacle") {
+                // Восстанавливаем препятствие с его размерами
+                float width = objJson.contains("width") ? objJson["width"].toDouble() : 1.0f;
+                float height = objJson.contains("height") ? objJson["height"].toDouble() : 1.0f;
+                
+                auto box = std::make_unique<Obstacle>(_box.get(), width, height);
+                box->Translate(QVector3D(x, y, 0));
+                _primitives.emplace_back(std::move(box));
+            }
+        }
+    }
+}
+
 

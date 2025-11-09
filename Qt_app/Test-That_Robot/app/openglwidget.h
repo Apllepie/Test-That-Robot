@@ -6,6 +6,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
+#include <QJsonObject>
+
 
 #include "core/world.h"
 #include "renderer/scene_renderer.h"
@@ -24,6 +26,10 @@ public slots:
     void addingBox(); // Slot for the "Add Box" button
     void runScript(const QString& scriptCode);
 
+    //save and load
+     QJsonObject getWorldState() const;
+    void loadWorldState(const QJsonObject &state);
+    
 protected:
     // --- Main QOpenGLWidget methods ---
     void initializeGL() override;

@@ -20,8 +20,15 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QString m_currentFilePath;
+
+    void saveProject(const QString &filePath);
+    void loadProject(const QString &filePath);
 private slots:
     void onRunScriptClicked();
+    void onSave();
+    void onSaveAs();
+    void onOpen();
 
 };
 #endif // MAINWINDOW_H

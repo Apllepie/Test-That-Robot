@@ -48,6 +48,11 @@ public:
     void Scale(QVector3D factor);
     void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
 
+    //GETTERS AND SETTERS
+    virtual QString getType() const { return "object"; }
+    float getX() const { return _x; }
+    float getY() const { return _y; }
+    QVector3D getScale() const { return _scale; }
     QMatrix4x4 getModelMatrix() const {return _modelMatrix;}
     void setModelMatrix(const QMatrix4x4 &newModelMatrix) {_modelMatrix = newModelMatrix;}
     Mesh* getMesh() const {return _mesh; }

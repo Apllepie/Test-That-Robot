@@ -57,6 +57,7 @@ public:
     
     void setDestinationMarkerId(size_t marker_id) { _destinationMarkerId = marker_id; }
     size_t getDestinationMarkerId() const { return _destinationMarkerId; }
+    QString getType() const override { return "robot"; }
 
 
     float omega; //angular speed

@@ -58,6 +58,16 @@ void OpenGLWidget::runScript(const QString &scriptCode)
     _world.runMainScript(scriptCode.toStdString());
 }
 
+QJsonObject OpenGLWidget::getWorldState() const
+{
+    return _world.saveState();
+}
+
+void OpenGLWidget::loadWorldState(const QJsonObject &state)
+{
+    _world.loadState(state);
+}
+
 
 
 // --- Delegating all input events to InputController ---
