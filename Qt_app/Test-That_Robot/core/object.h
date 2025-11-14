@@ -10,8 +10,6 @@
 #include "renderer/mesh.h"
 
 
-
-
 class Object
 {
 protected:
@@ -25,7 +23,7 @@ protected:
 
 
     QMatrix4x4 _modelMatrix;
-    Mesh * _mesh;
+    Mesh *  _mesh;
 
     void updateModelMatrixFromParameters();
     void updateParametersFromModelMatrix();

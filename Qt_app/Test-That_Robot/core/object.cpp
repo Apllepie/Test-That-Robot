@@ -12,6 +12,8 @@ Object::Object(Mesh *mesh)
 }
 
 
+
+
 void Object::Translate(float dx, float dy, float dz)
 {
     _x += dx;
@@ -68,6 +70,8 @@ void Object::Rotate(float theta, bool xAxis, bool yAxis, bool zAxis)
         _scale = _modelMatrix.column(0).toVector3D(); // Assuming uniform scaling
 
     }
+
+
 
 
 

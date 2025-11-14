@@ -28,6 +28,7 @@ HEADERS += \
     core/occupancy_grid.h \
     core/obstacle.h \
     \
+    renderer/gizmohandler.h \
     renderer/grid_renderer.h \
     renderer/scene_renderer.h \
     renderer/camera.h \
@@ -54,6 +55,7 @@ SOURCES += \
     core/occupancy_grid.cpp \
     core/obstacle.cpp \
     \
+    renderer/gizmohandler.cpp \
     renderer/grid_renderer.cpp \
     renderer/scene_renderer.cpp \
     renderer/camera.cpp \
