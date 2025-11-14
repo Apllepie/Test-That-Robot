@@ -14,8 +14,8 @@ void ScriptApiBridge::addRobotAt(float x, float y) {
     _world->addRobotAt(x, y);
 }
 
-void ScriptApiBridge::addBoxAt(float x, float y) {
-    _world->addBoxAt(x, y);
+void ScriptApiBridge::addBoxAt(float x, float y, float w, float h) {
+    _world->addBoxAt(x, y, w, h);
 }
 void ScriptApiBridge::updateOccupancyGrid() {
     _world->updateOccupancyGrid();

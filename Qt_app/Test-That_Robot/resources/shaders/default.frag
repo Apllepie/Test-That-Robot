@@ -6,6 +6,6 @@ uniform bool isSelected;
 
     void main()
     {
-    vec3 finalColor = isSelected ? vec3(1.0, 0.0, 0.0) : color;
-    FragColor = vec4(finalColor, 1.0);
+    vec4 finalColor = isSelected ? vec4(color, 1.0) : vec4(color, 1.0);
+    FragColor = finalColor;
     }

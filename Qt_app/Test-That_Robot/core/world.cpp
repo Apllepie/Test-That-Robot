@@ -39,7 +39,7 @@ void World::init()
     _box->Init();
     _robotMesh->Init();
     addRobotAt(0, 0);
-    addBoxAt(0, 0);
+    addBoxAt(0, 0, 1, 1);
 }
 
 
@@ -227,9 +227,9 @@ void World::clearMap()
     qDebug() << "Map cleared.";
 }
 
-void World::addBoxAt(float x, float y)
+void World::addBoxAt(float x, float y, float w, float h)
 {
-    auto box = std::make_unique<Obstacle>(_box.get(), 1.0f, 1.0f);
+    auto box = std::make_unique<Obstacle>(_box.get(), w, h);
     box->Translate(QVector3D(x, y, 0));
     _primitives.emplace_back(std::move(box));
 }

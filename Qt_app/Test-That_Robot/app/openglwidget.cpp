@@ -50,7 +50,7 @@ void OpenGLWidget::paintGL()
 void OpenGLWidget::addingBox()
 {
     // Send command to the world
-    _world.addBoxAt(0, 0);
+    _world.addBoxAt(0, 0, 1, 1);
 }
 
 void OpenGLWidget::runScript(const QString &scriptCode)

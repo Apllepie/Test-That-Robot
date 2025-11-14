@@ -19,7 +19,7 @@ public:
     // function to manipulate scene
     void clearMap();
     void addRobotAt(float x, float y);
-    void addBoxAt(float x, float y);
+    void addBoxAt(float x, float y, float w, float h);
     void updateOccupancyGrid();
 
     // get functions

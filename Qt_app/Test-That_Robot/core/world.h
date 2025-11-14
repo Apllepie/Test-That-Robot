@@ -64,7 +64,7 @@ public:
 
     void runMainScript(const std::string& scriptCode);
     void clearMap();
-    void addBoxAt(float x, float y);
+    void addBoxAt(float x, float y, float w, float h);
     void addRobotAt(float x, float y);
     void updateOccupancyGrid();
 
