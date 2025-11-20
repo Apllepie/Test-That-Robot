@@ -42,6 +42,11 @@ void World::init()
     addBoxAt(0, 0, 1, 1);
 }
 
+void World::setGizmoHandler(GizmoHandler *gizmo)
+{
+    _gizmo = gizmo;
+}
+
 
 void World::update(float dt)
 {
@@ -113,6 +118,84 @@ void World::translateObject(float x, float y){
     if(_selectedObjectIndex == -1) return;
     _primitives[_selectedObjectIndex]->Translate(x, y, 0.0f);
 }
+void World::scaleObject(float sx, float sy, int handleId){
+    Object* selectedObject = getSelectedObject();
+    if (!selectedObject) return;
+
+    QVector3D currentScale = selectedObject->getScale();
+    float currentRotation = selectedObject->getAngle();
+
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix.rotate(currentRotation, 0, 0, 1);
+
+    // 1. РЕШАЕМ ПРОБЛЕМУ "ВАТНОСТИ"
+    // Увеличим чувствительность. Попробуйте значение 2.0,
+    // вы всегда можете его изменить, чтобы добиться комфортной скорости.
+    float sensitivity = 2.0f;
+    float mouseDeltaX = sx * sensitivity;
+    float mouseDeltaY = sy * sensitivity;
+
+    QVector3D potentialScaleChange(0, 0, 0);
+
+    // Рассчитываем *потенциальное* изменение масштаба
+    switch (handleId) {
+    case 1: potentialScaleChange.setX(mouseDeltaX); break;       // Правый
+    case 2: potentialScaleChange.setX(-mouseDeltaX); break;      // Левый
+    case 3: potentialScaleChange.setY(mouseDeltaY); break;       // Верхний
+    case 4: potentialScaleChange.setY(-mouseDeltaY); break;      // Нижний
+    case 5: potentialScaleChange.setX(mouseDeltaX); potentialScaleChange.setY(mouseDeltaY); break;  // Верхний правый
+    case 6: potentialScaleChange.setX(-mouseDeltaX); potentialScaleChange.setY(mouseDeltaY); break; // Верхний левый
+    case 7: potentialScaleChange.setX(-mouseDeltaX); potentialScaleChange.setY(-mouseDeltaY); break;// Нижний левый
+    case 8: potentialScaleChange.setX(mouseDeltaX); potentialScaleChange.setY(-mouseDeltaY); break; // Нижний правый
+    }
+
+    QVector3D potentialNewScale = currentScale + potentialScaleChange;
+
+    // Ограничиваем минимальный размер
+    float minSize = 0.1f;
+    if (potentialNewScale.x() < minSize) potentialNewScale.setX(minSize);
+    if (potentialNewScale.y() < minSize) potentialNewScale.setY(minSize);
+
+    // Вычисляем ФАКТИЧЕСКОЕ изменение масштаба после всех ограничений
+    QVector3D actualScaleChange = potentialNewScale - currentScale;
+
+    // Применяем итоговый, ограниченный масштаб
+    selectedObject->Scale(potentialNewScale);
+
+    // 2. РЕШАЕМ ПРОБЛЕМУ "РАСТЕТ В ОБЕ СТОРОНЫ"
+    // Вычисляем сдвиг центра, который должен компенсировать изменение размера.
+    // Сдвиг равен половине *фактического* изменения размера.
+    // Направление сдвига зависит от того, за какой маркер мы тянем.
+    float posChangeX = actualScaleChange.x() / 2.0f;
+    float posChangeY = actualScaleChange.y() / 2.0f;
+
+    QVector3D posChange(0,0,0);
+
+    switch (handleId) {
+    // Края
+    case 1: posChange.setX(posChangeX); break;      // Тянем вправо -> центр смещается вправо
+    case 2: posChange.setX(-posChangeX); break;     // Тянем влево -> центр смещается влево
+    case 3: posChange.setY(posChangeY); break;      // Тянем вверх -> центр смещается вверх
+    case 4: posChange.setY(-posChangeY); break;     // Тянем вниз -> центр смещается вниз
+
+    // Углы
+    case 5: posChange.setX(posChangeX); posChange.setY(posChangeY); break;   // Верхний правый
+    case 6: posChange.setX(-posChangeX); posChange.setY(posChangeY); break;  // Верхний левый
+    case 7: posChange.setX(-posChangeX); posChange.setY(-posChangeY); break; // Нижний левый
+    case 8: posChange.setX(posChangeX); posChange.setY(-posChangeY); break;  // Нижний правый
+    }
+
+    // Применяем смещение позиции, обязательно учитывая текущий поворот объекта
+    if (posChange.lengthSquared() > 1e-6) {
+        QVector3D rotatedPosChange = rotationMatrix.map(posChange);
+        selectedObject->Translate(rotatedPosChange.x(), rotatedPosChange.y(), 0.0f);
+    }
+}
+Object* World::getSelectedObject(){
+    if(_selectedObjectIndex == -1) return nullptr;
+    return _primitives[_selectedObjectIndex].get();
+}
+
 
 void World::startRobot()
 {

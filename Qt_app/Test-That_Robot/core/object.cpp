@@ -29,12 +29,12 @@ void Object::Translate(QVector3D dir)
 
 void Object::Scale(float dx, float dy, float dz)
 {
-    if(_scale.x() * dx <= 0.0f) dx = 0.01f;
-    if(_scale.y() * dy <= 0.0f) dy = 0.01f;
-    if(_scale.z() * dz <= 0.0f) dz = 0.01f;
-   _scale.setX(_scale.x()*dx);
-   _scale.setY(_scale.y()*dy);
-    _scale.setZ(_scale.z()*dz);
+   // if(_scale.x() * dx <= 0.0f) dx = 0.01f;
+    //if(_scale.y() * dy <= 0.0f) dy = 0.01f;
+   // if(_scale.z() * dz <= 0.0f) dz = 0.01f;
+   _scale.setX(_scale.x()+dx);
+   _scale.setY(_scale.y()+dy);
+    _scale.setZ(_scale.z()+dz);
     updateModelMatrixFromParameters();
 }
  void Object::Scale(QVector3D factor){

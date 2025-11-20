@@ -30,8 +30,43 @@ void InputController::handleMousePress(QMouseEvent *e) {
 
    if (e->button() == Qt::LeftButton) {
         _leftMousePressed = true;
-       _renderer->pickAt(*_world, _lastMousePos.x(), _lastMousePos.y());
-  }
+       PickingObject::pixelInfo pickedPixel;
+        pickedPixel = _renderer->pickAt(_lastMousePos.x(), _lastMousePos.y());
+
+       uint objectID = pickedPixel.r;
+       uint handleID = pickedPixel.g;
+       qDebug() << "object Id " << objectID <<" Handler: " <<handleID <<"\n";
+       // 1. Если кликнули по фону
+
+       int clickedObjectIndex = static_cast<int>(objectID) - 1;
+       int previouslySelectedObjectIndex = _world->getSelectedObjectIndex();
+
+
+       _world->selectObject(clickedObjectIndex);
+
+       // Сценарий 1: Клик по маркеру гизмо.
+       // Это может произойти, только если объект уже был выделен.
+       if (handleID != 0) {
+           _currentDragMode = DragMode::Scale;
+           _activeHandleID = handleID;
+           // Важно: не меняем выделение.
+           return;
+       }
+
+       // Сценарий 2: Клик по объекту (новому или уже выделенному).
+       if (objectID > 0) {
+           // Если мы кликнули на новый объект, выделяем его.
+           if (clickedObjectIndex != previouslySelectedObjectIndex) {
+               _world->selectObject(clickedObjectIndex);           }
+           // В любом случае, при клике на тело объекта - начинаем перемещение.
+           _currentDragMode = DragMode::Translate;
+           return;
+       }
+
+       // Сценарий 3: Клик по фону (pickedObjectID == 0).
+       _world->selectObject(-1);
+       _currentDragMode = DragMode::None;
+   }
     else if (e->button() == Qt::RightButton) {
         _rightMousePressed = true;
       _world->setRobotDestination(_lastMouseWorldPos);
@@ -48,10 +83,13 @@ void InputController::handleMouseRelease(QMouseEvent *e) {
     }
     else if(e->button() == Qt::LeftButton){
         _leftMousePressed = false;
+        _currentDragMode = DragMode::None;
+         _activeHandleID = 0;
     }
     else if(e->button() == Qt::MiddleButton){
         _middleMosePressed = false;
     }
+
 }
 
 void InputController::handleMouseMove(QMouseEvent *e) {
@@ -64,7 +102,8 @@ void InputController::handleMouseMove(QMouseEvent *e) {
         QVector3D currentMouseWorldPos = getMouseWorldPos(e->pos(), _dpr);
         QVector3D delta = currentMouseWorldPos - _lastMouseWorldPos;
        _lastMouseWorldPos = currentMouseWorldPos;
-       _world->translateObject(delta.x(), delta.y());
+      // _world->translateObject(delta.x(), delta.y());
+       serveDrag(delta);
 
     }
 }
@@ -143,6 +182,23 @@ QVector3D InputController::getMouseWorldPos(const QPoint pos, float dpr)
     // Если луч параллелен (маловероятно), возвращаем пустой вектор
     return QVector3D();
 
+}
+
+void InputController::serveDrag(QVector3D delta)
+{
+
+    switch (_currentDragMode) {
+    case DragMode::Translate:
+        _world->translateObject(delta.x(), delta.y());
+
+        break;
+    case DragMode::Scale:
+         qDebug() <<"handle" << _activeHandleID <<"\n";
+        _world->scaleObject(delta.x(),delta.y(),_activeHandleID);
+         break;
+        default:
+        break;
+    }
 }
 
 

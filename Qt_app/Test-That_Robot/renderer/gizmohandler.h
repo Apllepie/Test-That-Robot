@@ -7,10 +7,10 @@
 #include <QVector3D>
 #include <memory>
 
-#define HANDL_SIZE 0.05
+#define HANDL_SIZE 0.06
 
 enum GizmoAxis{
-    X, Y, Z, XY, XZ, YZ, XYZ
+    X, Y, Z, XY, XZ, YZ, XYZ, None
 };
 
 struct GizmoHandle {
@@ -33,6 +33,15 @@ private:
 public:
     GizmoHandler();
     void drawGizmo(Camera *_c, Shader *_s, QMatrix4x4 _m);
+    void drawGizmoForPicking(Shader *_s, QMatrix4x4 _m, uint _bId);
+    const GizmoHandle* getHandleInfo(int handleId) {
+        for (const auto& handle : _gizmo) {
+            if (handle.pickingId == handleId) {
+                return &handle;
+            }
+        }
+        return nullptr;
+    }
 
 
 

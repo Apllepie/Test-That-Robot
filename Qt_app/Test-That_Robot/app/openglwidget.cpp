@@ -23,6 +23,7 @@ void OpenGLWidget::initializeGL()
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions
     _renderer.finishInitialization(_world);
+    _world.setGizmoHandler(_renderer.getGizmoHandler());
     _inputController.init(&_world, &_renderer, devicePixelRatioF());
 
     _simTimer.start(); // Start the simulation timer

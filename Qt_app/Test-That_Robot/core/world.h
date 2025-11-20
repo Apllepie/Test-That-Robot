@@ -13,6 +13,7 @@
 #include <QJsonArray>
 
 
+#include "gizmohandler.h"
 #include "object.h"
 #include "robot.h"
 #include "obstacle.h"
@@ -35,6 +36,7 @@ private:
 
     std::unique_ptr<OccupancyGrid> _grid;
     std::unique_ptr<ScriptingManager> _scriptingManager;
+    GizmoHandler * _gizmo;
 public:
 
     
@@ -43,12 +45,15 @@ public:
     ~World() = default;
 
     void init();
+    void setGizmoHandler(GizmoHandler * gizmo);
     void update(float dt);
 
     //object
     void deleteObject();
     void selectObject(int index);
     void translateObject(float x, float y);
+    void scaleObject(float sx, float sy, int handleId);
+    Object* getSelectedObject();
 
     //robot
     void startRobot();

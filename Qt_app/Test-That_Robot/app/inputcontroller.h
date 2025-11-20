@@ -4,12 +4,19 @@
 #include <QPoint>
 #include "core/world.h"
 #include "renderer/scene_renderer.h"
+#include "renderer/gizmohandler.h"
 
 // predeclare classes to reduce dependencies
 class QMouseEvent;
 class QWheelEvent;
 class QKeyEvent;
 class SceneRenderer;
+
+enum class DragMode {
+    None,
+    Translate,
+    Scale
+};
 
 class InputController {
 public:
@@ -35,9 +42,15 @@ private:
     bool _leftMousePressed = false;
     bool _rightMousePressed = false;
     bool _middleMosePressed = false;
+    bool _isDraggingGizmo = false;
+    int _draggedObjectIndex = -1;
+    int _activeHandleID = -1;
+    DragMode _currentDragMode = DragMode::None;
+    QVector3D _initialObjectScale;
 
     //fun
     QVector3D getMouseWorldPos(const QPoint pos, float dpr);
+    void serveDrag(QVector3D delta);
 };
 
 #endif // INPUTCONTROLLER_H
