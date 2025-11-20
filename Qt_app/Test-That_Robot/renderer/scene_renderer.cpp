@@ -100,8 +100,12 @@ void SceneRenderer::render(const World& world)
             GLint outlineModelLoc = glGetUniformLocation(_outlineShader->ID, "model");
             glUniformMatrix4fv(outlineModelLoc, 1, GL_FALSE, primitives[i]->getModelMatrix().constData());
 
-            GLint thicknessLoc = glGetUniformLocation(_outlineShader->ID, "outline_thickness");
-            glUniform1f(thicknessLoc, 0.03f);
+            GLint pixelsLoc = glGetUniformLocation(_outlineShader->ID, "outline_pixels");
+            glUniform1f(pixelsLoc, 2.5f); // Можете сделать это значение настраиваемым
+
+            // 2. Передаем текущий размер окна (вьюпорта)
+            GLint viewportLoc = glGetUniformLocation(_outlineShader->ID, "viewport_size");
+            glUniform2f(viewportLoc, (float)_w, (float)_h);
 
             primitives[i]->getMesh()->Draw();
 

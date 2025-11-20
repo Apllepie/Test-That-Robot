@@ -42,12 +42,41 @@ void GizmoHandler::drawGizmo(Camera *_c, Shader *_s, QMatrix4x4 _m)
     }
     _c->Activate(_s);
 
-    for(size_t i =1 ; i < _gizmo.size(); i++){
-        QVector3D gizmoLoc = _m.map( _gizmo[i].localPosition);
+    // Получаем направления осей объекта в мировом пространстве из матрицы модели.
+    // Они уже учитывают поворот.
+    QVector3D xAxis = QVector3D(_m.column(0)).normalized();
+    QVector3D yAxis = QVector3D(_m.column(1)).normalized();
+
+    // Коэффициент смещения. Можете его настроить.
+    float offset = HANDL_SIZE * 0.75f;
+
+    for(size_t i = 1; i < _gizmo.size(); i++){
+        const auto& handle = _gizmo[i];
+
+        // 1. Получаем позицию края/угла в мировом пространстве.
+        QVector3D edgeWorldPos = _m.map(handle.localPosition);
+
+        // 2. Определяем направление смещения в мировом пространстве.
+        QVector3D offsetDirection;
+        switch (handle.pickingId) {
+        case 1: offsetDirection = xAxis; break;             // Правый
+        case 2: offsetDirection = -xAxis; break;            // Левый
+        case 3: offsetDirection = yAxis; break;             // Верхний
+        case 4: offsetDirection = -yAxis; break;            // Нижний
+        case 5: offsetDirection = (xAxis + yAxis).normalized(); break;  // Верхний правый
+        case 6: offsetDirection = (-xAxis + yAxis).normalized(); break; // Верхний левый
+        case 7: offsetDirection = (-xAxis - yAxis).normalized(); break; // Нижний левый
+        case 8: offsetDirection = (xAxis - yAxis).normalized(); break;  // Нижний правый
+        }
+
+        // 3. Вычисляем финальную позицию хэндла.
+        QVector3D finalGizmoPos = edgeWorldPos + offsetDirection * offset;
+
+        // 4. Рисуем хэндл в этой позиции.
         GLuint locN = glGetUniformLocation(_s->ID, "model");
         QMatrix4x4 newMod;
         newMod.setToIdentity();
-        newMod.translate(gizmoLoc);
+        newMod.translate(finalGizmoPos);
         glUniformMatrix4fv(locN, 1, GL_FALSE, newMod.constData());
         _mesh->Draw();
     }
