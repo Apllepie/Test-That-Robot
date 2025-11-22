@@ -17,6 +17,8 @@ void SceneRenderer::init()
 
     _gridRenderer = std::make_unique<GridRenderer>();
     _gizmo = std::make_unique<GizmoHandler>();
+    _pathRenderer = std::make_unique<PathRenderer>();
+    _pathRenderer->init();
 
     _defaultShader =  std::make_unique<Shader>(":/Shaders/shaders/default.vert",":/Shaders/shaders/default.frag");
     _frameShader = std::make_unique<Shader>(":/Shaders/shaders/pick.vert",":/Shaders/shaders/pick.frag");
@@ -69,6 +71,10 @@ void SceneRenderer::render(const World& world)
     const auto& primitives = world.getPrimitives();
     for (size_t i = 0; i < primitives.size(); ++i) {
         _defaultShader->Activate();
+        if (const Robot* robot = dynamic_cast<const Robot*>(primitives[i].get())) {
+            // Рисуем путь желтым цветом (1.0, 1.0, 0.0) или любым другим
+            _pathRenderer->render(robot->getTravelTrace(), _camera, QVector3D(1.0f, 0.8f, 0.0f));
+        }
 
         // check if the current object is selected
         bool isSelected = (static_cast<int>(i) == world.getSelectedObjectIndex());

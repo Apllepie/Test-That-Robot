@@ -19,6 +19,8 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
     _angularspeed = 0.0f;
 
     _velocity = QVector3D(0.0f, 0.0f, 0.0f);
+
+    _lastTracePos = QVector3D(_x, _y, 0.02f);
 }
 
 void Robot::update(float dt)
@@ -67,6 +69,11 @@ void Robot::update(float dt)
     _angle = qRadiansToDegrees(qAtan2(directionVector.y(), directionVector.x())) - 90.0f;
 
     updateModelMatrixFromParameters();
+    QVector3D currentPosD= QVector3D(_x, _y, 0.02f); // Z = 0.02, чтобы рисовать чуть выше пола
+    if (currentPos.distanceToPoint(_lastTracePos.toVector2D()) > _traceMinDist) {
+        _travelTrace.push_back(currentPosD);
+        _lastTracePos = currentPosD;
+    }
 }
 
 void Robot::start()

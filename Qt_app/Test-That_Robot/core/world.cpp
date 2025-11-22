@@ -286,6 +286,15 @@ void World::updateOccupancyGrid()
     }
 }
 
+void World::clearTraces()
+{
+    for (const auto& obj_ptr : _primitives) {
+        if(Robot* robot = dynamic_cast<Robot*>(obj_ptr.get())){
+            robot->clearTrace();
+        }
+    }
+}
+
 
 void World::clearMap()
 {

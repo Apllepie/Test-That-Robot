@@ -32,6 +32,10 @@ private:
     int _currentPathIndex = -1;   // Index of the current target point in the path
     size_t _destinationMarkerId = 0;
 
+    std::vector<QVector3D> _travelTrace;
+    QVector3D _lastTracePos;
+    float _traceMinDist = 0.05f;
+
     const OccupancyGrid* _grid = nullptr;
     //functions
     float calculateDistance(float nx, float ny);
@@ -58,6 +62,10 @@ public:
     void setDestinationMarkerId(size_t marker_id) { _destinationMarkerId = marker_id; }
     size_t getDestinationMarkerId() const { return _destinationMarkerId; }
     QString getType() const override { return "robot"; }
+     const std::vector<QVector3D>& getTravelTrace() const { return _travelTrace; }
+    
+    // Метод очистки, если нужно сбросить след
+    void clearTrace() { _travelTrace.clear(); }
 
 
     float omega; //angular speed

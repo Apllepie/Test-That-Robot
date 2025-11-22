@@ -9,6 +9,7 @@
 #include "renderer/shaderclass.h"
 #include "renderer/pickingobject.h"
 #include "gizmohandler.h"
+#include "pathrenderer.h"
 
 
 
@@ -28,6 +29,7 @@ private:
 
     std::unique_ptr<GridRenderer> _gridRenderer;
     std::unique_ptr<GizmoHandler> _gizmo;
+    std::unique_ptr<PathRenderer> _pathRenderer;
 
     //functions
      PickingObject::pixelInfo takePixel(uint x, uint y);

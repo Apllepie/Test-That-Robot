@@ -72,6 +72,7 @@ public:
     void addBoxAt(float x, float y, float w, float h);
     void addRobotAt(float x, float y);
     void updateOccupancyGrid();
+    void clearTraces();
 
 
     const std::vector<std::unique_ptr<Object>>& getPrimitives() const { return _primitives; }

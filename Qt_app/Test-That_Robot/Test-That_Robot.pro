@@ -30,6 +30,7 @@ HEADERS += \
     \
     renderer/gizmohandler.h \
     renderer/grid_renderer.h \
+    renderer/pathrenderer.h \
     renderer/scene_renderer.h \
     renderer/camera.h \
     renderer/mesh.h \
@@ -57,6 +58,7 @@ SOURCES += \
     \
     renderer/gizmohandler.cpp \
     renderer/grid_renderer.cpp \
+    renderer/pathrenderer.cpp \
     renderer/scene_renderer.cpp \
     renderer/camera.cpp \
     renderer/mesh.cpp \

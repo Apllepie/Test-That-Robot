@@ -19,8 +19,9 @@ void ScriptingManager::init(World* world) {
 
     // 3. Регистрируем функции из МОСТА, а не из World!
     scene_api.set_function("clear_map", &ScriptApiBridge::clearMap, _apiBridge.get());
-    scene_api.set_function("set_robot", &ScriptApiBridge::addRobotAt, _apiBridge.get());
-    scene_api.set_function("set_box", &ScriptApiBridge::addBoxAt, _apiBridge.get());
+    scene_api.set_function("add_robot", &ScriptApiBridge::addRobotAt, _apiBridge.get());
+    scene_api.set_function("add_rec", &ScriptApiBridge::addBoxAt, _apiBridge.get());
+    scene_api.set_function("clear_trace", &ScriptApiBridge::clearTrace, _apiBridge.get());
     scene_api.set_function("rebuild_collision_map", &ScriptApiBridge::updateOccupancyGrid, _apiBridge.get());
    
     scene_api.set_function("get_grid_dimensions", &ScriptApiBridge::getGridDimensions, _apiBridge.get());

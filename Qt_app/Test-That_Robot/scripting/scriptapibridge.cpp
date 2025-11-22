@@ -10,6 +10,11 @@ void ScriptApiBridge::clearMap() {
     _world->clearMap();
 }
 
+void ScriptApiBridge::clearTrace()
+{
+    _world->clearTraces();
+}
+
 void ScriptApiBridge::addRobotAt(float x, float y) {
     _world->addRobotAt(x, y);
 }

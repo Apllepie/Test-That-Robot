@@ -18,6 +18,7 @@ public:
 
     // function to manipulate scene
     void clearMap();
+    void clearTrace();
     void addRobotAt(float x, float y);
     void addBoxAt(float x, float y, float w, float h);
     void updateOccupancyGrid();
@@ -29,6 +30,7 @@ public:
 
     // robot manipulating
     void setRobotPath(size_t robot_id, sol::table path_table);
+
 
     // Occupancy Grid API
     sol::table getGridDimensions(sol::this_state s);
