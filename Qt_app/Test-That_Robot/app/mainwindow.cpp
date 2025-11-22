@@ -17,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(ui->actionadd_box, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingBox  );
     QObject::connect(ui->actionadd_wall, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingP  );
+    QObject::connect(ui->actionadd_circle, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingC  );
+    QObject::connect(ui->actionadd_triangle, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingT  );
     QObject::connect(ui->actionadd_robot, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingRobot);
     QObject::connect(ui->actionrun, &QAction::triggered, this, &MainWindow::onRunScriptClicked  );
     

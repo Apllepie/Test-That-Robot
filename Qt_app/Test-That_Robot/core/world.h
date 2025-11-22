@@ -17,10 +17,14 @@
 #include "object.h"
 #include "robot.h"
 #include "obstacle.h"
+#include "obstaclecircle.h"
 #include "occupancy_grid.h"
 #include "scripting/scriptingmanager.h"
 
-
+struct meshPoints{
+    vector<GLfloat> v;
+    vector<GLuint> i;
+};
 
 class World
 {
@@ -31,12 +35,15 @@ private:
     size_t _nextObjectId = 1;
 
     std::unique_ptr<Mesh> _box;
+    std::unique_ptr<Mesh> _circle;
+    std::unique_ptr<Mesh> _Triangle;
     std::unique_ptr<Mesh> _robotMesh;
     std::unique_ptr<Mesh> _destPoint;
 
     std::unique_ptr<OccupancyGrid> _grid;
     std::unique_ptr<ScriptingManager> _scriptingManager;
     GizmoHandler * _gizmo;
+    meshPoints makeCircleMesh(int nSides);
 public:
 
     
@@ -72,6 +79,8 @@ public:
     void clearMap();
     void addBoxAt(float x, float y, float w, float h);
     void addRobotAt(float x, float y);
+    void addCircleAt(float x, float y, float r);
+    void addTriangleAt(float x, float y, float r);
     void updateOccupancyGrid();
     void clearTraces();
 

@@ -22,6 +22,12 @@ void ScriptApiBridge::addRobotAt(float x, float y) {
 void ScriptApiBridge::addBoxAt(float x, float y, float w, float h) {
     _world->addBoxAt(x, y, w, h);
 }
+void ScriptApiBridge::addCircleAt(float x, float y, float r) {
+    _world->addCircleAt(x, y, r);
+}
+void ScriptApiBridge::addTriangleAt(float x, float y, float r) {
+    _world->addTriangleAt(x, y, r);
+}
 void ScriptApiBridge::updateOccupancyGrid() {
     _world->updateOccupancyGrid();
 }

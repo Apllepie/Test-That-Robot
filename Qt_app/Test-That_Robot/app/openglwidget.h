@@ -25,6 +25,8 @@ public:
 public slots:
     void addingBox(); // Slot for the "Add Box" button
     void addingP();
+    void addingC();
+    void addingT();
     void addingRobot();
     void runScript(const QString& scriptCode);
 

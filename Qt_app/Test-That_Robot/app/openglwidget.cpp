@@ -59,6 +59,16 @@ void OpenGLWidget::addingP()
     _world.addBoxAt(0, 0, 1, 4);
 }
 
+void OpenGLWidget::addingC()
+{
+    _world.addCircleAt(0,0,1);
+}
+
+void OpenGLWidget::addingT()
+{
+    _world.addTriangleAt(0,0, 1);
+}
+
 void OpenGLWidget::addingRobot()
 {
     _world.addRobotAt(0,0);

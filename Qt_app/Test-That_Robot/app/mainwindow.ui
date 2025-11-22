@@ -27,24 +27,7 @@
     <property name="title">
      <string>file</string>
     </property>
-    <widget class="QMenu" name="menunew">
-     <property name="title">
-      <string>New</string>
-     </property>
-     <widget class="QMenu" name="menumap">
-      <property name="title">
-       <string>map</string>
-      </property>
-      <addaction name="actionCreate_new"/>
-      <addaction name="actionGenerate"/>
-     </widget>
-     <addaction name="actionCode"/>
-     <addaction name="actioncode"/>
-     <addaction name="menumap"/>
-    </widget>
-    <addaction name="menunew"/>
     <addaction name="actionopen"/>
-    <addaction name="actionrecent"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
@@ -64,7 +47,8 @@
    <addaction name="actionadd_robot"/>
    <addaction name="actionadd_box"/>
    <addaction name="actionadd_wall"/>
-   <addaction name="actionadd_move_object"/>
+   <addaction name="actionadd_circle"/>
+   <addaction name="actionadd_triangle"/>
   </widget>
   <widget class="QToolBar" name="toolBar_2">
    <property name="windowTitle">
@@ -310,7 +294,7 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
-  <action name="actionadd_move_object">
+  <action name="actionadd_circle">
    <property name="icon">
     <iconset resource="../resources/resources.qrc">
      <normaloff>:/icons/icons/basketball.svg</normaloff>:/icons/icons/basketball.svg</iconset>
@@ -320,6 +304,18 @@
    </property>
    <property name="toolTip">
     <string>add move object</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionadd_triangle">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/icons/icons/play.svg</normaloff>:/icons/icons/play.svg</iconset>
+   </property>
+   <property name="text">
+    <string>add_triangle</string>
    </property>
    <property name="menuRole">
     <enum>QAction::MenuRole::NoRole</enum>

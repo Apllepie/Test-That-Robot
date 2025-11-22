@@ -22,6 +22,7 @@ HEADERS += \
     app/openglwidget.h \
     app/inputcontroller.h \
     \
+    core/obstaclecircle.h \
     core/world.h \
     core/object.h \
     core/robot.h \
@@ -50,6 +51,7 @@ SOURCES += \
     app/openglwidget.cpp \
     app/inputcontroller.cpp \
     \
+    core/obstaclecircle.cpp \
     core/world.cpp \
     core/object.cpp \
     core/robot.cpp \

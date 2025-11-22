@@ -21,6 +21,8 @@ public:
     void clearTrace();
     void addRobotAt(float x, float y);
     void addBoxAt(float x, float y, float w, float h);
+    void addCircleAt(float x, float y, float r);
+    void addTriangleAt(float x, float y, float r);
     void updateOccupancyGrid();
 
     // get functions

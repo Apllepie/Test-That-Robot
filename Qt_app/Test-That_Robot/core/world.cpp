@@ -1,8 +1,33 @@
 #include "world.h"
+#include "obstaclecircle.h"
 
 //should be divided into smaller parts
 
 // change occupancy grid to dynamic, and aabb
+
+meshPoints World::makeCircleMesh(int nSides)
+{   float _radius =0.5;
+    float beta = 2.0f * M_PI / nSides;
+    std::vector<GLfloat> vertices;
+    vertices.insert(vertices.end(), {0,0,0.01, 1,1,1});
+    std::vector<GLuint> indices;
+
+    for (int i = 1 ; i <= nSides; i++){
+        float x = _radius * std::cos(beta*i);
+        float y = _radius * std::sin(beta*i);
+        vertices.insert(vertices.end(), {x, y, 0.01, 1, 1, 1});
+
+        if(i+1 > nSides){
+            indices.insert(indices.end(), {0, (GLuint)i, 1});
+        }else{
+            indices.insert(indices.end(), {0, (GLuint)i, (GLuint)i+1});
+        }
+
+    }
+    qDebug() <<"vertices " << vertices<<"\nindices " <<indices <<"\n";
+    return {vertices, indices};
+
+}
 
 World::World() {
 
@@ -13,7 +38,8 @@ void World::init()
     //run scripts
     _scriptingManager = std::make_unique<ScriptingManager>();
     _scriptingManager->init(this);
-
+    _circle = std::make_unique<Mesh>(Mesh(makeCircleMesh(15).v,makeCircleMesh(15).i));
+    _Triangle = std::make_unique<Mesh>(Mesh(makeCircleMesh(3).v,makeCircleMesh(3).i));
     _grid = std::make_unique<OccupancyGrid>(40.0f, 40.0f, 0.25f);
     _box = std::make_unique<Mesh>(Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f}));
     _robotMesh = std::make_unique<Mesh>(Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
@@ -37,9 +63,13 @@ void World::init()
 
     _destPoint->Init();
     _box->Init();
+    _circle->Init();
+    _Triangle->Init();
     _robotMesh->Init();
     addRobotAt(0, 0);
     addBoxAt(0, 0, 1, 1);
+   // addCircleAt(2,2,1);
+   // addCircleAt(1,1,);
 }
 
 void World::setGizmoHandler(GizmoHandler *gizmo)
@@ -351,6 +381,22 @@ void World::addRobotAt(float x, float y)
     //
     _primitives.emplace_back(std::move(robot));
     _primitives.emplace_back(std::move(dest_marker));
+}
+
+void World::addCircleAt(float x, float y, float r)
+{
+    auto circle = std::make_unique<ObstacleCircle>(r, 15, _circle.get());
+    circle->Translate(QVector3D(x,y,0));
+    circle->Scale(QVector3D(r,r,1));
+    _primitives.emplace_back(std::move(circle));
+}
+
+void World::addTriangleAt(float x, float y, float r)
+{
+    auto triangle = std::make_unique<ObstacleCircle>(r, 3, _Triangle.get());
+    triangle->Translate(QVector3D(x,y,0));
+    triangle->Scale(QVector3D(r,r,1));
+    _primitives.emplace_back(std::move(triangle));
 }
 bool World::checkLineOfSight(const QVector2D& p1, const QVector2D& p2) const
 {
