@@ -162,7 +162,7 @@ void SceneRenderer::renderForPicking(const World &world)
          if (static_cast<int>(i) == world.getSelectedObjectIndex() && dynamic_cast<Obstacle*>(primitives[i].get())) {
              const QMatrix4x4& modelMatrix = primitives[i]->getModelMatrix();
              _gizmo->drawGizmoForPicking(_frameShader.get(), modelMatrix, objectID);
-             qDebug() << "DRAWWWW HANDLESR";
+            // qDebug() << "DRAWWWW HANDLESR";
          }
     }
 

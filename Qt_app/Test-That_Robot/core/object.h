@@ -40,12 +40,11 @@ public:
     virtual void stop(){};
 
     //FUNCTIONS TO TRANSFORM THE OBJECT
-    void Translate(float dx, float dy, float dz);
-    void Translate(QVector3D dir);
-    void Scale(float dx, float dy, float dz);
-    void Scale(QVector3D factor);
-    void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
-
+    virtual void Translate(float dx, float dy, float dz);
+    virtual void Translate(QVector3D dir);
+    virtual void Scale(float dx, float dy, float dz);
+    virtual void Scale(QVector3D factor);
+    virtual void Rotate(float theta, bool xAxis, bool yAxis, bool zAxis);
     //GETTERS AND SETTERS
     virtual QString getType() const { return "object"; }
     float getX() const { return _x; }

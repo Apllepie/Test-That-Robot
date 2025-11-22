@@ -54,6 +54,16 @@ void OpenGLWidget::addingBox()
     _world.addBoxAt(0, 0, 1, 1);
 }
 
+void OpenGLWidget::addingP()
+{
+    _world.addBoxAt(0, 0, 1, 4);
+}
+
+void OpenGLWidget::addingRobot()
+{
+    _world.addRobotAt(0,0);
+}
+
 void OpenGLWidget::runScript(const QString &scriptCode)
 {
     _world.runMainScript(scriptCode.toStdString());

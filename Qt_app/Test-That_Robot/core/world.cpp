@@ -191,6 +191,14 @@ void World::scaleObject(float sx, float sy, int handleId){
         selectedObject->Translate(rotatedPosChange.x(), rotatedPosChange.y(), 0.0f);
     }
 }
+
+void World::RotateSObject(float Angle)
+{
+    if(_selectedObjectIndex != -1){
+        _primitives[_selectedObjectIndex]->Rotate(Angle, 0,0, 1);
+    }
+}
+
 Object* World::getSelectedObject(){
     if(_selectedObjectIndex == -1) return nullptr;
     return _primitives[_selectedObjectIndex].get();

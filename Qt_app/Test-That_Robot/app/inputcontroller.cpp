@@ -127,6 +127,18 @@ void InputController::handleKeyPress(QKeyEvent *e) {
         qDebug() << "pressed backspace or delete\n";
         _world->deleteObject();
     }
+    if(e->key() == Qt::Key_Right){
+        _world->RotateSObject(-5.0f);
+    }
+    if(e->key() == Qt::Key_Left){
+        _world->RotateSObject(5.0f);
+    }
+    if(e->key()==Qt::Key_Up){
+        _world->RotateSObject(0.0f);
+    }
+    if(e->key()==Qt::Key_Down){
+        _world->RotateSObject(90.0f);
+    }
 }
 
 void InputController::handleKeyRelease(QKeyEvent *e)

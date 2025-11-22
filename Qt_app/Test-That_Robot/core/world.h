@@ -53,6 +53,7 @@ public:
     void selectObject(int index);
     void translateObject(float x, float y);
     void scaleObject(float sx, float sy, int handleId);
+    void RotateSObject(float Angle);
     Object* getSelectedObject();
 
     //robot
