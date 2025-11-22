@@ -35,3 +35,14 @@ std::vector<QVector2D> Obstacle::getGlobalVertices() const
 
     return globalVertices;
 }
+
+bool Obstacle::isInside(QVector2D localPoint) const
+{
+    // float halfWidth = _width / 2.0f;
+    // float halfHeight = _height / 2.0f;
+
+    // return (localPoint.x() >= -halfWidth && localPoint.x() <= halfWidth &&
+    //         localPoint.y() >= -halfHeight && localPoint.y() <= halfHeight);
+    return (std::abs(localPoint.x()) <= 0.5f && 
+            std::abs(localPoint.y()) <= 0.5f);
+}

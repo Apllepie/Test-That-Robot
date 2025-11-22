@@ -19,6 +19,7 @@ public:
     float getHeight() const { return _height; }
     QString getType() const override { return "obstacle"; }
     std::vector<QVector2D> getGlobalVertices() const;
+    virtual bool isInside(QVector2D localPoint) const ;
 };
 
 #endif

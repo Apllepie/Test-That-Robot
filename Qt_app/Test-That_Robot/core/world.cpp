@@ -337,26 +337,42 @@ void World::addRobotAt(float x, float y)
 }
 bool World::checkLineOfSight(const QVector2D& p1, const QVector2D& p2) const
 {
-    for (const auto& obj : _primitives) {
-        if (const Obstacle* obstacle = dynamic_cast<const Obstacle*>(obj.get())) {
-            // AABB-тест для быстрой отбраковки
-            QVector3D pos = obj->getModelMatrix().column(3).toVector3D();
-            QVector3D scale = obj->getScale(); // Получаем масштаб из объекта
-            float halfWidth = scale.x() / 2.0f;
-            float halfHeight = scale.y() / 2.0f;
-            
-            // Простая проверка пересечения линии с AABB препятствия
-            // (Это не совсем точно для повернутых объектов, но для начала сойдет)
-            QRectF obstacleBounds(pos.x() - halfWidth, pos.y() - halfHeight, scale.x(), scale.y());
-            if (obstacleBounds.intersects(QRectF(p1.toPointF(), p2.toPointF()))) {
-                // Более точная проверка нужна здесь, но пока будем считать, что пересечение есть
-                return false; // Нет прямой видимости
-            }
+    if (!_grid) return true;
+
+    QVector2D diff = p2 - p1;
+    float length = diff.length();
+    if (length < 0.001f) return !_grid->isOccupied(p1);
+
+    QVector2D dir = diff.normalized();
+
+    // --- ИСПРАВЛЕНИЕ ---
+    // Уменьшаем шаг до 1/10 от размера ячейки.
+    // Размер ячейки 0.25 -> Шаг будет 0.025.
+    // Это гарантирует, что мы не "перепрыгнем" даже через самый маленький
+    // угловой срез занятой клетки.
+    float stepSize = _grid->getCellSize() * 0.1f;
+
+    // Количество шагов
+    int steps = static_cast<int>(std::ceil(length / stepSize));
+
+    for (int i = 0; i <= steps; ++i) {
+        // Вычисляем текущую точку на линии
+        // Для последнего шага берем точную конечную точку p2, чтобы не уйти за неё из-за округления
+        QVector2D point;
+        if (i == steps) {
+            point = p2;
+        } else {
+            point = p1 + dir * (static_cast<float>(i) * stepSize);
+        }
+
+        // Проверяем, занята ли клетка в этой точке
+        if (_grid->isOccupied(point)) {
+            return false; // Путь заблокирован
         }
     }
-    return true; // Прямая видимость есть
-}
 
+    return true; // Путь свободен
+}
 
 //Save and load
 void World::clearAllForLoad()

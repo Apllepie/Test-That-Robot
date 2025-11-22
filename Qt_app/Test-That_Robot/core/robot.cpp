@@ -25,7 +25,7 @@ void Robot::update(float dt)
 {
       // ИСПРАВЛЕНИЕ: Если пути нет, просто ничего не делаем в этот кадр.
     // НЕ вызываем stop(), чтобы не сбросить флаг цели.
-    if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= _path.size()) {
+    if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= (int)_path.size()) {
         return; // Просто выходим
     }
 

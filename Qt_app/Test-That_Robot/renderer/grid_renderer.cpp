@@ -87,8 +87,13 @@ void GridRenderer::render(const OccupancyGrid& grid, const Camera& camera)
     occupiedPositionsP =  grid.getOccupiedCellWorldPositions();
 
     std::vector<QVector2D> occupiedPositions;
+     std::vector<QVector2D> NoccupiedPositions;
     for(size_t i =0; i < occupiedPositionsP.size(); ++i){
+        if(occupiedPositionsP[i].second >160 ){
         occupiedPositions.push_back(occupiedPositionsP[i].first);
+        }else {
+            NoccupiedPositions.push_back(occupiedPositionsP[i].first);
+        }
     }
 
     if (occupiedPositions.empty()) {
@@ -106,6 +111,13 @@ void GridRenderer::render(const OccupancyGrid& grid, const Camera& camera)
 
     glBindVertexArray(_gridCellVAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 6, occupiedPositions.size());
+
+    glUniform3f(glGetUniformLocation(_occupancyShader->ID, "uColor"), 1.0f, 0.75f, 0.2f);
+    glBindBuffer(GL_ARRAY_BUFFER, _gridInstanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, NoccupiedPositions.size() * sizeof(QVector2D), NoccupiedPositions.data(), GL_DYNAMIC_DRAW);
+
+    glBindVertexArray(_gridCellVAO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 6, NoccupiedPositions.size());
 
     glBindVertexArray(0);
 }
