@@ -17,7 +17,10 @@ public:
     bool isInside(QVector2D localPoint) const override;
     std::shared_ptr<Mesh> mesh;
 
-    QString getType() const override { return "obstacle_circle"; }
+    QString getType() const override {
+        if(_nSides == 3) return "obstacle_triangle";
+        else
+        return "obstacle_circle"; }
 };
 
 #endif // OBSTACLECIRCLE_H

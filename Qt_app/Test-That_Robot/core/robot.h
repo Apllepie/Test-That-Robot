@@ -66,7 +66,7 @@ public:
     
     // Метод очистки, если нужно сбросить след
     void clearTrace() { _travelTrace.clear(); }
-
+    float getLSpeed() {return _linearspeed;}
 
     float omega; //angular speed
 

@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "qtextedit.h"
 #include <QMainWindow>
 #include <QPushButton>
 
@@ -21,6 +22,7 @@ public:
 private:
     Ui::MainWindow *ui;
     QString m_currentFilePath;
+    QTextEdit *consoleOutput;
 
     void saveProject(const QString &filePath);
     void loadProject(const QString &filePath);
@@ -29,6 +31,7 @@ private slots:
     void onSave();
     void onSaveAs();
     void onOpen();
+    void appendLog(const QString& message, int type);
 
 };
 #endif // MAINWINDOW_H

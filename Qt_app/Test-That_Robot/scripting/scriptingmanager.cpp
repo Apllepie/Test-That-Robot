@@ -1,5 +1,6 @@
+#include "scriptingmanager.h"
 #include "scriptapibridge.h"
-#include "core/world.h"
+#include "core/world.h" // Важно для доступа к методу log
 #include <QDebug>
 
 ScriptingManager::ScriptingManager() {
@@ -8,16 +9,31 @@ ScriptingManager::ScriptingManager() {
 
 ScriptingManager::~ScriptingManager() {}
 
-
 void ScriptingManager::init(World* world) {
-    // made bbridge
+    // 1. СОХРАНЯЕМ УКАЗАТЕЛЬ В КЛАССЕ
+    _world = world; 
+
+    // 2. Создаем мост
     _apiBridge = std::make_unique<ScriptApiBridge>(world);
 
-    // made table Api
+    // 3. Перехватываем print. Используем _world (член класса) через [this] или захватываем аргумент world
+    // Надежнее захватить 'world' напрямую в лямбду, чтобы не зависеть от 'this' в сложный момент инициализации.
+    lua.set_function("print", [world](sol::variadic_args args) {
+        if (!world) return; // Защита от краша
+
+        std::string output;
+        for (auto arg : args) {
+            std::string str = arg.as<std::string>();
+            output += str + "\t";
+        }
+        // Вызываем логгер мира
+        world->log(output, World::LogType::LUA);
+    });
+
+    // --- Регистрация API Scene и Robot ---
     sol::table scene_api = lua.create_named_table("Scene");
     sol::table robot_api = lua.create_named_table("Robot");
 
-    // 3. Регистрируем функции из МОСТА, а не из World!
     scene_api.set_function("clear_map", &ScriptApiBridge::clearMap, _apiBridge.get());
     scene_api.set_function("add_robot", &ScriptApiBridge::addRobotAt, _apiBridge.get());
     scene_api.set_function("add_rec", &ScriptApiBridge::addBoxAt, _apiBridge.get());
@@ -39,30 +55,40 @@ void ScriptingManager::init(World* world) {
     robot_api.set_function("get_goal_pos", &ScriptApiBridge::getGoalPosition, _apiBridge.get());
     robot_api.set_function("set_path", &ScriptApiBridge::setRobotPath, _apiBridge.get());
 
-    qDebug() << "C++ API registered in Lua. Global table 'Scene' 'Robot' is now available.";
+    qDebug() << "API registered successfully.";
 }
 
-
-// Эта функция будет вызываться по кнопке "Run"
 void ScriptingManager::runScriptFromEditor(const std::string& scriptCode) {
     try {
-        // Выполняем скрипт, чтобы определить все функции, включая main
+        // Выполняем скрипт
         lua.script(scriptCode);
-        qDebug() << "Script from editor executed.";
+        
+        // Логируем успех (ВАЖНАЯ ПРОВЕРКА НА _world)
+        if (_world) {
+            _world->log("Script parsed successfully.", World::LogType::INFO);
+        }
 
-        // Ищем и вызываем функцию main()
+        // Ищем и вызываем main()
         sol::function main_func = lua["main"];
         if (main_func.valid()) {
-            qDebug() << "Executing main() function from script...";
-            sol::protected_function_result result = main_func(); // Запускаем!
+            sol::protected_function_result result = main_func();
             if (!result.valid()) {
                 sol::error err = result;
-                qWarning() << "LUA RUNTIME ERROR in main():" << err.what();
+                std::string errorMsg = "Runtime Error: " + std::string(err.what());
+                qWarning() << errorMsg.c_str();
+                
+                // Логируем ошибку выполнения
+                if (_world) _world->log(errorMsg, World::LogType::ERROR);
             }
-        } else {
-            qDebug() << "INFO: No main() function found in the script.";
         }
     } catch (const sol::error& e) {
-        qWarning() << "LUA SYNTAX ERROR:" << e.what();
+        std::string syntaxError = "Syntax Error: " + std::string(e.what());
+        qWarning() << syntaxError.c_str();
+        
+        // Логируем синтаксическую ошибку
+        if (_world) _world->log(syntaxError, World::LogType::ERROR);
+    } catch (...) {
+        // Ловим любые другие краши C++
+        if (_world) _world->log("Unknown C++ Exception during script execution.", World::LogType::ERROR);
     }
 }

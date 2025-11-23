@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -15,16 +16,40 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    QDockWidget *consoleDock = new QDockWidget("Console Output", this);
+    consoleDock->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
+
+    // 2. Создаем текстовое поле
+    consoleOutput = new QTextEdit(consoleDock);
+    consoleOutput->setReadOnly(true); // Только для чтения
+
+    // Настраиваем шрифт (моноширинный выглядит лучше для логов)
+    QFont font("Consolas");
+    font.setStyleHint(QFont::Monospace);
+    consoleOutput->setFont(font);
+
+    // 3. Кладем текстовое поле внутрь дока
+    consoleDock->setWidget(consoleOutput);
+
+    // 4. Добавляем док в главное окно (вниз)
+    addDockWidget(Qt::BottomDockWidgetArea, consoleDock);
+
     QObject::connect(ui->actionadd_box, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingBox  );
     QObject::connect(ui->actionadd_wall, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingP  );
     QObject::connect(ui->actionadd_circle, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingC  );
     QObject::connect(ui->actionadd_triangle, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingT  );
     QObject::connect(ui->actionadd_robot, &QAction::triggered, ui->opengl_widget, &OpenGLWidget::addingRobot);
     QObject::connect(ui->actionrun, &QAction::triggered, this, &MainWindow::onRunScriptClicked  );
-    
+    QObject::connect(ui->opengl_widget, &OpenGLWidget::logMessage, this, &MainWindow::appendLog);
+
     connect(ui->actionSave, &QAction::triggered, this, &MainWindow::onSave);
     connect(ui->actionSave_as, &QAction::triggered, this, &MainWindow::onSaveAs);
     connect(ui->actionopen, &QAction::triggered, this, &MainWindow::onOpen);
+
+    connect(ui->opengl_widget, &OpenGLWidget::statusMessage, this, [this](const QString& msg){
+        // Выводим сообщение в статус-бар (внизу окна)
+        this->statusBar()->showMessage(msg);
+    });
     
     new LuaSyntaxHighlighter(ui->codeEditor->document());
 }
@@ -68,6 +93,51 @@ void MainWindow::onOpen()
         m_currentFilePath = filePath;
         loadProject(filePath);
     }
+}
+
+void MainWindow::appendLog(const QString &message, int type)
+{
+    QString color;
+    QString prefix;
+
+    switch (type) {
+    case 0: // INFO
+        color = "black";
+        prefix = "[INFO]";
+        break;
+    case 1: // ERROR
+        color = "#D32F2F"; // Красный
+        prefix = "[ERROR]";
+        break;
+    case 2: // LUA
+        color = "#1976D2"; // Синий
+        prefix = "[LUA]";
+        break;
+    case 3: // OBJECT
+        color = "#388E3C"; // Зеленый
+        prefix = "[OBJ]";
+        break;
+    default:
+        color = "gray";
+        prefix = "[LOG]";
+    }
+
+    QString timeStr = QDateTime::currentDateTime().toString("HH:mm:ss");
+
+    // Формируем HTML для цветного вывода
+    QString html = QString("<div style='color:%1;'><b>%2 %3:</b> %4</div>")
+                       .arg(color)
+                       .arg(timeStr)
+                       .arg(prefix)
+                       .arg(message.toHtmlEscaped()); // Экранируем спецсимволы
+
+    consoleOutput->append(html);
+
+    // Прокрутка вниз
+    consoleOutput->ensureCursorVisible();
+    // ПОДКЛЮЧЕНИЕ ЛОГА
+
+
 }
 
 void MainWindow::saveProject(const QString &filePath)

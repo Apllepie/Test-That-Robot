@@ -1,7 +1,6 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-
 #include <cerrno>
 #include <QMatrix4x4>
 #include <memory>
@@ -12,6 +11,10 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+// --- ДОБАВЛЕНЫ НОВЫЕ БИБЛИОТЕКИ ---
+#include <functional>
+#include <string>
+// ----------------------------------
 
 #include "gizmohandler.h"
 #include "object.h"
@@ -22,14 +25,23 @@
 #include "scripting/scriptingmanager.h"
 
 struct meshPoints{
-    vector<GLfloat> v;
-    vector<GLuint> i;
+    std::vector<GLfloat> v;
+    std::vector<GLuint> i;
 };
 
 class World
 {
+public:
+    // --- 1. ОПРЕДЕЛЕНИЕ ТИПОВ ДЛЯ ЛОГИРОВАНИЯ ---
+    enum class LogType { INFO, ERROR, LUA, OBJECT };
+
+    // Определяем тип функции обратного вызова
+    using LogCallback = std::function<void(const std::string&, LogType)>;
+    // --------------------------------------------
+    using StatusCallback = std::function<void(const std::string&)>;
+
 private:
-   std::vector<std::unique_ptr<Object>> _primitives;
+    std::vector<std::unique_ptr<Object>> _primitives;
     bool _isSelected = false;
     int _selectedObjectIndex = -1;
     size_t _nextObjectId = 1;
@@ -44,9 +56,13 @@ private:
     std::unique_ptr<ScriptingManager> _scriptingManager;
     GizmoHandler * _gizmo;
     meshPoints makeCircleMesh(int nSides);
-public:
 
-    
+    // --- 2. ПЕРЕМЕННАЯ CALLBACK (Теперь тип LogCallback известен) ---
+    LogCallback _logCallback;
+    StatusCallback _statusCallback;
+    // ----------------------------------------------------------------
+
+public:
 
     World();
     ~World() = default;
@@ -68,7 +84,7 @@ public:
     void stopRobot();
     void setRobotDestination(const QVector3D& destination);
     void startRobotOnPlannedPath();
-   // const std::vector<QVector2D>& getPlannedPath() const { return _plannedPath; }
+    // const std::vector<QVector2D>& getPlannedPath() const { return _plannedPath; }
 
     Object* getObjectById(size_t id);
     //scripts
@@ -90,12 +106,21 @@ public:
     const OccupancyGrid* getOccupancyGrid() const { return _grid.get(); }
     bool checkLineOfSight(const QVector2D& p1, const QVector2D& p2) const;
 
-
-//save
+    //save
     QJsonObject saveState() const;
     void loadState(const QJsonObject &state);
     void clearAllForLoad();
 
+    // --- 3. МЕТОДЫ ДЛЯ ЛОГИРОВАНИЯ ---
+    void setLogCallback(LogCallback cb) { _logCallback = cb; }
+
+    void log(const std::string& message, LogType type = LogType::INFO) {
+        if (_logCallback) {
+            _logCallback(message, type);
+        }
+    }
+    void setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
+    // ---------------------------------
 };
 
 #endif // WORLD_H

@@ -115,6 +115,34 @@ void World::update(float dt)
             }
         }
     }
+    if (_statusCallback) {
+        // Вариант А: Если объект выбран
+        Object* selectedObj = getSelectedObject();
+        if (selectedObj) {
+            // Формируем строку
+            QString statusStr = QString("Selected Object Type: %2 | X: %3 | Y: %4")
+                               .arg(selectedObj->getType())
+                               .arg(selectedObj->getX(), 0, 'f', 2)
+                               .arg(selectedObj->getY(), 0, 'f', 2);
+
+            if (Robot* r = dynamic_cast<Robot*>(selectedObj)) {
+                 statusStr = QString("Selected Object %1 | ID: %2 | X: %3 | Y: %4 | Angle: %5 ")
+                    .arg(selectedObj->getType())
+                    .arg(selectedObj->getId())
+                    .arg(selectedObj->getX(), 0, 'f', 2)
+                    .arg(selectedObj->getY(), 0, 'f', 2)
+                    .arg(r->getAngle(), 0, 'f', 1);
+
+                if (r->hasDestination()) {
+                    statusStr += " [MOVING]";
+                } else {
+                    statusStr += " [IDLE]";
+                }
+            }
+
+            _statusCallback(statusStr.toStdString());
+        }
+    }
 }
 
 
@@ -138,6 +166,26 @@ void World::selectObject(int index)
 {
     if (index >= 0 && index < static_cast<int>(_primitives.size())) {
         _selectedObjectIndex = index;
+        // --- ВЫВОД ИНФОРМАЦИИ ОБ ОБЪЕКТЕ ---
+        // Object* obj = _primitives[index].get();
+
+        // QString info = QString("Selected Object Type: %2 | X: %3 | Y: %4")
+        //                    .arg(obj->getType())
+        //                    .arg(obj->getX(), 0, 'f', 2)
+        //                    .arg(obj->getY(), 0, 'f', 2);
+
+        // if (Robot* r = dynamic_cast<Robot*>(obj)) {
+        //      info = QString("Selected Object ID: %1 | Type: %2 | X: %3 | Y: %4 | Angle: %5| Speed: %6")
+        //     .arg(obj->getId())
+        //         .arg(obj->getType())
+        //         .arg(obj->getX(), 0, 'f', 2)
+        //         .arg(obj->getY(), 0, 'f', 2)
+        //         .arg(r->getAngle(), 0, 'f', 1)
+        //         .arg(r->getLSpeed());
+        // }
+
+        // log(info.toStdString(), LogType::OBJECT);
+        // -------------------------------------
     } else {
         _selectedObjectIndex = -1;
     }

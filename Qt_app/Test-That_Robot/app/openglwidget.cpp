@@ -19,6 +19,16 @@ void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions(); // Initialize the widget itself
 
+    _world.setLogCallback([this](const std::string& msg, World::LogType type) {
+        // Вызываем сигнал. Т.к. вызов может быть из другого потока (теоретически),
+        // сигнал безопасен. Cast enum to int for simplicity in signals.
+        emit logMessage(QString::fromStdString(msg), static_cast<int>(type));
+    });
+    _world.setStatusCallback([this](const std::string& msg) {
+        // Отправляем сигнал в главное окно
+        emit statusMessage(QString::fromStdString(msg));
+    });
+
     // Pass control of initialization to child components
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions

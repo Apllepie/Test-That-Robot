@@ -13,7 +13,7 @@ class ScriptingManager;
 class ScriptingManager {
 private:
     sol::state lua;
-
+    World* _world = nullptr;
     std::unique_ptr<ScriptApiBridge> _apiBridge;
 public:
     ScriptingManager();

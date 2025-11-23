@@ -21,6 +21,10 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 public:
     explicit OpenGLWidget(QWidget *parent = nullptr);
     ~OpenGLWidget();
+signals:
+    // Сигнал для передачи сообщения в MainWindow
+    void logMessage(const QString& message, int type);
+    void statusMessage(const QString& message);
 
 public slots:
     void addingBox(); // Slot for the "Add Box" button
@@ -33,6 +37,7 @@ public slots:
     //save and load
      QJsonObject getWorldState() const;
     void loadWorldState(const QJsonObject &state);
+
     
 protected:
     // --- Main QOpenGLWidget methods ---
