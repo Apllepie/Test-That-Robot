@@ -5,7 +5,9 @@ GridRenderer::GridRenderer() : _gridCellVAO(0),
     _gridInstanceVBO(0),
     _lineGridVAO(0),
     _lineGridVBO(0),
-    _lineVertexCount(0) {}
+    _lineVertexCount(0),
+    _axesVAO(0), 
+    _axesVBO(0) {}
 
 GridRenderer::~GridRenderer()
 {
@@ -14,6 +16,9 @@ GridRenderer::~GridRenderer()
     glDeleteBuffers(1, &_gridInstanceVBO);
     glDeleteVertexArrays(1, &_lineGridVAO);
     glDeleteBuffers(1, &_lineGridVBO);
+
+     if (_axesVAO) glDeleteVertexArrays(1, &_axesVAO);
+    if (_axesVBO) glDeleteBuffers(1, &_axesVBO);
 }
 
 void GridRenderer::init(const OccupancyGrid& grid)
@@ -26,6 +31,9 @@ void GridRenderer::init(const OccupancyGrid& grid)
     
     if (_lineGridVAO) { glDeleteVertexArrays(1, &_lineGridVAO); _lineGridVAO = 0; }
     if (_lineGridVBO) { glDeleteBuffers(1, &_lineGridVBO); _lineGridVBO = 0; }
+
+    if (_axesVAO) { glDeleteVertexArrays(1, &_axesVAO); _axesVAO = 0; }
+    if (_axesVBO) { glDeleteBuffers(1, &_axesVBO); _axesVBO = 0; }
 
 
     _occupancyShader = std::make_unique<Shader>(":/Shaders/shaders/occupancy.vert", ":/Shaders/shaders/occupancy.frag");
@@ -82,6 +90,26 @@ void GridRenderer::init(const OccupancyGrid& grid)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 
+    float axisLength = 500.0f; 
+    float axesData[] = {
+        // X Axis (Point 1, Point 2)
+        -axisLength, 0.0f,
+         axisLength, 0.0f,
+        // Y Axis (Point 1, Point 2)
+        0.0f, -axisLength,
+        0.0f,  axisLength
+    };
+
+    glGenVertexArrays(1, &_axesVAO);
+    glGenBuffers(1, &_axesVBO);
+    glBindVertexArray(_axesVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, _axesVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(axesData), axesData, GL_STATIC_DRAW);
+    
+    // Используем layout=0 (pos), так как шейдер grid.vert принимает vec2 pos
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    
     glBindVertexArray(0);
 }
 
@@ -94,6 +122,19 @@ void GridRenderer::render(const OccupancyGrid& grid, const Camera& camera)
 
     glBindVertexArray(_lineGridVAO);
     glDrawArrays(GL_LINES, 0, _lineVertexCount);
+
+     GLint colorLoc = glGetUniformLocation(_lineShader->ID, "uColor");
+    glBindVertexArray(_axesVAO);
+
+    // Ось X (Красная)
+    // Первые 2 вершины (индексы 0 и 1)
+    glUniform3f(colorLoc, 1.0f, 0.0f, 0.0f); 
+    glDrawArrays(GL_LINES, 0, 2);
+
+    // Ось Y (Зеленая)
+    // Вторые 2 вершины (индексы 2 и 3)
+    glUniform3f(colorLoc, 0.0f, 1.0f, 0.0f); 
+    glDrawArrays(GL_LINES, 2, 2);
 
     // --- Фаза 2: Рисуем ЗАНЯТЫЕ ЯЧЕЙКИ (как и раньше) ---
     std::vector<std::pair<QVector2D, unsigned char>> occupiedPositionsP;

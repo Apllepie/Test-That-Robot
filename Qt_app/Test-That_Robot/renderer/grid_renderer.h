@@ -22,6 +22,9 @@ private:
     GLuint _lineGridVBO = 0;
     int _lineVertexCount = 0;
 
+    GLuint _axesVAO = 0;
+    GLuint _axesVBO = 0;
+
 public:
     GridRenderer();
     ~GridRenderer();
