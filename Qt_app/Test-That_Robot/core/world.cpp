@@ -40,7 +40,8 @@ void World::init()
     _scriptingManager->init(this);
     _circle = std::make_unique<Mesh>(Mesh(makeCircleMesh(15).v,makeCircleMesh(15).i));
     _Triangle = std::make_unique<Mesh>(Mesh(makeCircleMesh(3).v,makeCircleMesh(3).i));
-    _grid = std::make_unique<OccupancyGrid>(40.0f, 40.0f, 0.25f);
+    //setGrid(40.0f, 40.0f, 0.25f);
+    _grid = std::make_unique<OccupancyGrid>(40, 40, 0.25);
     _box = std::make_unique<Mesh>(Mesh(Mesh::type::BOX, {1.0f, 1.0f, 1.0f}));
     _robotMesh = std::make_unique<Mesh>(Mesh( {-0.4f, -0.4f, 0.0f,      1.0f, 0.0f, 1.0f,
                                               -0.4f, 0.4f, 0.0f,             1.0f, 0.0f, 1.0f,
@@ -76,7 +77,23 @@ void World::setGizmoHandler(GizmoHandler *gizmo)
 {
     _gizmo = gizmo;
 }
+void World::setGrid(float w, float h, float cellSize)
+{
+    if (cellSize <= 0.05f) cellSize = 0.05f; // Защита от слишком мелкой сетки (зависание)
+    
+    qDebug() << "Recreating grid with cell size:" << cellSize;
+    
+    // 1. Создаем новую сетку с тем же размером мира, но новой ячейкой
+    _grid = std::make_unique<OccupancyGrid>(w, h, cellSize);
+    
+    // 2. Сразу заполняем её препятствиями
+    updateOccupancyGrid();
 
+    // 3. Уведомляем систему, что надо перерисовать линии сетки
+    if (_onGridChanged) {
+        _onGridChanged();
+    }
+}
 
 void World::update(float dt)
 {
@@ -120,13 +137,13 @@ void World::update(float dt)
         Object* selectedObj = getSelectedObject();
         if (selectedObj) {
             // Формируем строку
-            QString statusStr = QString("Selected Object Type: %2 | X: %3 | Y: %4")
+            QString statusStr = QString("Selected Object: %2 | X: %3 | Y: %4")
                                .arg(selectedObj->getType())
                                .arg(selectedObj->getX(), 0, 'f', 2)
                                .arg(selectedObj->getY(), 0, 'f', 2);
 
             if (Robot* r = dynamic_cast<Robot*>(selectedObj)) {
-                 statusStr = QString("Selected Object %1 | ID: %2 | X: %3 | Y: %4 | Angle: %5 ")
+                 statusStr = QString("Selected Object: %1 | ID: %2 | X: %3 | Y: %4 | Angle: %5 ")
                     .arg(selectedObj->getType())
                     .arg(selectedObj->getId())
                     .arg(selectedObj->getX(), 0, 'f', 2)

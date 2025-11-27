@@ -31,6 +31,9 @@ void ScriptApiBridge::addTriangleAt(float x, float y, float r) {
 void ScriptApiBridge::updateOccupancyGrid() {
     _world->updateOccupancyGrid();
 }
+void ScriptApiBridge::setGrid(float w, float h, float size) {
+    _world->setGrid(w, h, size);
+}
 
 sol::table ScriptApiBridge::getAllRobotIDs(sol::this_state s) {
     sol::state_view lua(s);
@@ -77,6 +80,15 @@ void ScriptApiBridge::setRobotPath(size_t robot_id, sol::table path_table) {
     // Вызываем "чистую" функцию робота
     if (!worldPath.empty()) {
         robot->setPath(worldPath);
+    }
+}
+
+void ScriptApiBridge::setRobotSize(size_t robot_id, float size){
+     Robot* robot = _world->getRobotById(robot_id);
+    if (robot) {
+        // Устанавливаем масштаб по X и Y, Z оставляем 1.0
+        // size - это множитель масштаба (1.0 = стандартный, 2.0 = двойной)
+        robot->Scale(QVector3D(size, size, 1.0f));
     }
 }
 

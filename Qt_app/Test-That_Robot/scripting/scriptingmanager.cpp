@@ -41,6 +41,7 @@ void ScriptingManager::init(World* world) {
     scene_api.set_function("add_triangle", &ScriptApiBridge::addTriangleAt, _apiBridge.get());
     scene_api.set_function("clear_trace", &ScriptApiBridge::clearTrace, _apiBridge.get());
     scene_api.set_function("rebuild_collision_map", &ScriptApiBridge::updateOccupancyGrid, _apiBridge.get());
+    scene_api.set_function("set_grid", &ScriptApiBridge::setGrid, _apiBridge.get());
    
     scene_api.set_function("get_grid_dimensions", &ScriptApiBridge::getGridDimensions, _apiBridge.get());
     scene_api.set_function("is_cell_occupied", &ScriptApiBridge::isCellOccupied, _apiBridge.get());
@@ -54,7 +55,7 @@ void ScriptingManager::init(World* world) {
     robot_api.set_function("get_pos", &ScriptApiBridge::getRobotPosition, _apiBridge.get());
     robot_api.set_function("get_goal_pos", &ScriptApiBridge::getGoalPosition, _apiBridge.get());
     robot_api.set_function("set_path", &ScriptApiBridge::setRobotPath, _apiBridge.get());
-
+     robot_api.set_function("set_size", &ScriptApiBridge::setRobotSize, _apiBridge.get());
     qDebug() << "API registered successfully.";
 }
 

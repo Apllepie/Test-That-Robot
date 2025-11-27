@@ -28,7 +28,12 @@ void OpenGLWidget::initializeGL()
         // Отправляем сигнал в главное окно
         emit statusMessage(QString::fromStdString(msg));
     });
-
+    _world.setGridChangeCallback([this](){
+       makeCurrent();
+        _renderer.finishInitialization(_world);
+        doneCurrent();
+        update();
+    });
     // Pass control of initialization to child components
     _world.init();
     _renderer.init(); // Pass this for access to OpenGL functions

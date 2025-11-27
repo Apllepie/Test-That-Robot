@@ -1,6 +1,11 @@
 #include "grid_renderer.h"
 
-GridRenderer::GridRenderer() {}
+GridRenderer::GridRenderer() : _gridCellVAO(0),
+    _gridCellVBO(0),
+    _gridInstanceVBO(0),
+    _lineGridVAO(0),
+    _lineGridVBO(0),
+    _lineVertexCount(0) {}
 
 GridRenderer::~GridRenderer()
 {
@@ -13,7 +18,15 @@ GridRenderer::~GridRenderer()
 
 void GridRenderer::init(const OccupancyGrid& grid)
 {
-    initializeOpenGLFunctions();
+        initializeOpenGLFunctions();
+     // --- ДОБАВЛЕНО: Очистка старых буферов перед пересозданием ---
+    if (_gridCellVAO) { glDeleteVertexArrays(1, &_gridCellVAO); _gridCellVAO = 0; }
+    if (_gridCellVBO) { glDeleteBuffers(1, &_gridCellVBO); _gridCellVBO = 0; }
+    if (_gridInstanceVBO) { glDeleteBuffers(1, &_gridInstanceVBO); _gridInstanceVBO = 0; }
+    
+    if (_lineGridVAO) { glDeleteVertexArrays(1, &_lineGridVAO); _lineGridVAO = 0; }
+    if (_lineGridVBO) { glDeleteBuffers(1, &_lineGridVBO); _lineGridVBO = 0; }
+
 
     _occupancyShader = std::make_unique<Shader>(":/Shaders/shaders/occupancy.vert", ":/Shaders/shaders/occupancy.frag");
     float cellSize = grid.getCellSize();

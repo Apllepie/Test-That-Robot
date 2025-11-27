@@ -24,6 +24,7 @@ public:
     void addCircleAt(float x, float y, float r);
     void addTriangleAt(float x, float y, float r);
     void updateOccupancyGrid();
+    void setGrid(float w, float h, float size);
 
     // get functions
     sol::table getAllRobotIDs(sol::this_state s);
@@ -32,7 +33,7 @@ public:
 
     // robot manipulating
     void setRobotPath(size_t robot_id, sol::table path_table);
-
+    void setRobotSize(size_t robot_id, float size);
 
     // Occupancy Grid API
     sol::table getGridDimensions(sol::this_state s);

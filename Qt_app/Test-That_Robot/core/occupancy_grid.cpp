@@ -18,30 +18,40 @@ void OccupancyGrid::clear()
 
 void OccupancyGrid::updateFromObstacles(const std::vector<std::unique_ptr<Object>>& primitives)
 {
-    clear(); // Всегда начинаем с чистой сетки
+    clear(); // Очищаем карту
 
-    // --- ЭТАП 1: Универсальная растеризация ЛЮБЫХ препятствий ---
+    // 1. Определяем размер робота для раздутия
+    float maxRobotScale = 1.0f; 
+    bool robotFound = false;
+
     for (const auto& obj : primitives) {
-        // Проверяем, является ли объект препятствием (имеет реализацию isInside)
-        // dynamic_cast здесь не нужен, если все препятствия наследуются от Obstacle
-        Obstacle* obstacle = dynamic_cast<Obstacle*>(obj.get());
-        if (!obstacle) {
-            continue;
+        if (obj->isRobot) {
+            // Берем максимальный масштаб по осям (обычно X и Y равны)
+            maxRobotScale = std::max(obj->getScale().x(), obj->getScale().y());
+            robotFound = true;
+            break; 
         }
+    }
 
-        // Получаем матрицу модели и ее инверсию для преобразования координат
+    // ТРЕБОВАНИЕ: "больше половины робота в 2 раза".
+    // Базовый радиус меша робота примерно 0.4 (от центра).
+    // Половина размера = 0.4 * scale.
+    // Умножаем на 2 -> 0.8 * scale.
+    // Добавим немного запаса (коэффициент 2.2 вместо 2.0), чтобы наверняка.
+    float inflationRadiusWorld = (0.4f * maxRobotScale) * 1.5f;
+
+    // --- ЭТАП 1: Растеризация препятствий (стены становятся 255) ---
+    for (const auto& obj : primitives) {
+        Obstacle* obstacle = dynamic_cast<Obstacle*>(obj.get());
+        if (!obstacle) continue;
+
         QMatrix4x4 model = obstacle->getModelMatrix();
         bool invertible;
         QMatrix4x4 invModel = model.inverted(&invertible);
-        if (!invertible) {
-            continue; // Пропускаем объект, если его матрица вырождена
-        }
+        if (!invertible) continue;
 
-        // Находим AABB (осе-ориентированный ограничивающий прямоугольник) объекта,
-        // чтобы не проверять каждую ячейку на всей карте.
         auto vertices = obstacle->getGlobalVertices();
         if (vertices.empty()) {
-            // Для объектов без вершин (например, идеальный круг) можно взять AABB из позиции и размера
             float maxSize = std::max(obstacle->getScale().x(), obstacle->getScale().y());
             vertices.push_back(QVector2D(obstacle->getX() - maxSize, obstacle->getY() - maxSize));
             vertices.push_back(QVector2D(obstacle->getX() + maxSize, obstacle->getY() + maxSize));
@@ -56,94 +66,72 @@ void OccupancyGrid::updateFromObstacles(const std::vector<std::unique_ptr<Object
             maxY = std::max(maxY, vertices[i].y());
         }
 
-        // Конвертируем AABB в координаты сетки
         int gridMinX, gridMinY, gridMaxX, gridMaxY;
         worldToGrid(QVector2D(minX, minY), gridMinX, gridMinY);
         worldToGrid(QVector2D(maxX, maxY), gridMaxX, gridMaxY);
 
-        // Проходимся по всем ячейкам внутри AABB этого препятствия
         for (int y = gridMinY; y <= gridMaxY; ++y) {
             for (int x = gridMinX; x <= gridMaxX; ++x) {
-                // Пропускаем ячейки за пределами сетки
-                if (x < 0 || x >= _width || y < 0 || y >= _height) {
-                    continue;
-                }
-
-                // Получаем центр ячейки в мировых координатах
+                if (x < 0 || x >= _width || y < 0 || y >= _height) continue;
                 QVector2D cellCenterWorld = gridToWorld(x, y);
-
-                // Преобразуем центр ячейки в локальные координаты препятствия
                 QVector4D localPoint4D = invModel * QVector4D(cellCenterWorld.x(), cellCenterWorld.y(), 0.0f, 1.0f);
 
-                // --- ГЛАВНАЯ ЛОГИКА ---
-                // "Спрашиваем" у самого объекта, находится ли эта точка внутри его формы.
-                // Благодаря полиморфизму, вызовется правильная реализация:
-                // для прямоугольника - проверка границ, для круга - проверка радиуса и т.д.
                 if (obstacle->isInside(localPoint4D.toVector2D())) {
-                    setCell(x, y, 255);
+                    setCell(x, y, 255); // Ставим стену
                 }
             }
         }
     }
 
-    // --- ЭТАП 2: "Раздувание" для C-Space (остается без изменений, он универсален) ---
-    const float ROBOT_RADIUS = 0.6f;
-    int inflation_in_cells = static_cast<int>(std::ceil(ROBOT_RADIUS / _cellSize));
+    // --- ЭТАП 2: Раздутие (Inflation) вокруг препятствий ---
+    // Переводим радиус из мировых единиц в клетки
+    int inflation_in_cells = static_cast<int>(std::ceil(inflationRadiusWorld / _cellSize));
 
     if (inflation_in_cells > 0) {
-        // Копируем данные, чтобы читать стены из оригинала, а писать градиент в актуальную карту
+        // Копия данных, чтобы читать "чистые" стены
         std::vector<unsigned char> original_grid_data = _gridData;
+        
+        // Значения стоимости для градиента
+        const unsigned char COST_NEAR_WALL = 254; // Почти стена
+        const unsigned char COST_AT_EDGE = 50;   // Край опасной зоны
 
-        // Параметры градиента
-        const unsigned char COST_NEAR_WALL = 200; // Значение вплотную к стене (максимум градиента)
-        const unsigned char COST_AT_EDGE = 127;    // Значение на самом краю радиуса (минимум)
-
-        // Преобразуем радиус во float для расчетов
         float radius_f = static_cast<float>(inflation_in_cells);
 
+        // Проходим по всей карте
         for (int y = 0; y < _height; ++y) {
             for (int x = 0; x < _width; ++x) {
-                // Если в оригинальной карте здесь была стена
+                // Если находим стену в оригинальной карте
                 if (original_grid_data[y * _width + x] == 255) {
 
+                    // Рисуем круг вокруг этой точки стены
                     for (int iy = -inflation_in_cells; iy <= inflation_in_cells; ++iy) {
                         for (int ix = -inflation_in_cells; ix <= inflation_in_cells; ++ix) {
-
-                            // Считаем расстояние от центра препятствия до текущей точки ядра
+                            
+                            // Расстояние от точки стены до текущей проверяемой точки
                             float dist = std::sqrt(static_cast<float>(ix * ix + iy * iy));
 
-                            // Если вышли за радиус круга — пропускаем
-                            if (dist > radius_f) {
-                                continue;
-                            }
+                            // Если вышли за пределы радиуса раздутия - пропускаем
+                            if (dist > radius_f) continue;
 
                             int nx = x + ix;
                             int ny = y + iy;
 
+                            // Проверяем границы карты
                             if (nx >= 0 && nx < _width && ny >= 0 && ny < _height) {
                                 int idx = ny * _width + nx;
+                                
+                                // Не перезаписываем сами стены
+                                if (_gridData[idx] == 255) continue;
 
-                                // Не перезаписываем сами стены (255)
-                                if (_gridData[idx] == 255) {
-                                    continue;
-                                }
-
-                                // --- РАСЧЕТ ГРАДИЕНТА ---
-                                // factor = 1.0 (у стены) -> 0.0 (на краю радиуса)
+                                // Считаем градиент: чем ближе к стене (dist=0), тем выше стоимость
                                 float factor = 1.0f - (dist / radius_f);
-
-                                // Линейная интерполяция: от 10 до 127
                                 unsigned char gradientValue = static_cast<unsigned char>(
                                     COST_AT_EDGE + (COST_NEAR_WALL - COST_AT_EDGE) * factor
-                                    );
+                                );
 
-                                // --- ВАЖНЫЙ МОМЕНТ ---
-                                // Поскольку одна ячейка может попасть в радиус действия
-                                // нескольких стен, мы всегда должны оставлять МАКСИМАЛЬНОЕ значение.
-                                // Это гарантирует, что ближе к любой стене опасность выше.
+                                // Записываем МАКСИМАЛЬНОЕ значение (чтобы наложения стен не уменьшали опасность)
                                 if (gradientValue > _gridData[idx]) {
                                     setCell(nx, ny, gradientValue);
-                                    // Или напрямую: _gridData[idx] = gradientValue;
                                 }
                             }
                         }

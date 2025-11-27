@@ -25,26 +25,24 @@ Robot::Robot(Mesh *mesh) : Object(mesh)
 
 void Robot::update(float dt)
 {
-      // ИСПРАВЛЕНИЕ: Если пути нет, просто ничего не делаем в этот кадр.
-    // НЕ вызываем stop(), чтобы не сбросить флаг цели.
+    // Если пути нет, просто ничего не делаем
     if (_path.empty() || _currentPathIndex < 0 || _currentPathIndex >= (int)_path.size()) {
-        return; // Просто выходим
+        return; 
     }
-
-    // --- Весь остальной код остается без изменений ---
 
     QVector2D currentTarget = _path[_currentPathIndex];
     QVector2D currentPos(_x, _y);
     QVector2D directionVector = currentTarget - currentPos;
     float distanceToTarget = directionVector.length();
 
+    // Проверка прибытия в точку пути
     if (distanceToTarget < STOPPING_DISTANCE) {
         _currentPathIndex++;
         
         if (_currentPathIndex >= _path.size()) {
             _x = currentTarget.x();
             _y = currentTarget.y();
-            stop(); // Вызываем stop() только когда путь ЗАКОНЧИЛСЯ
+            stop(); 
             updateModelMatrixFromParameters();
             return;
         }
@@ -53,23 +51,44 @@ void Robot::update(float dt)
         distanceToTarget = directionVector.length();
     }
     
+    // Рассчитываем движение
     float currentSpeed = MOVE_SPEED;
     directionVector.normalize();
     float moveDistance = currentSpeed * dt;
 
-    if (moveDistance >= distanceToTarget) {
+    // --- НОВАЯ ЛОГИКА: Проверка столкновений ---
+    QVector2D nextPos;
+    bool movingToFinalPoint = (moveDistance >= distanceToTarget);
+
+    if (movingToFinalPoint) {
+        nextPos = currentTarget;
+    } else {
+        nextPos = currentPos + directionVector * moveDistance;
+    }
+
+    // Проверяем, не занята ли клетка, куда мы хотим встать (включая красную зону inflation)
+    if (_grid && _grid->isOccupied(nextPos)) {
+        qDebug() << "Robot Collision Detected at: " << nextPos;
+        stop(); // Аварийная остановка
+        return; 
+    }
+    // ------------------------------------------
+
+    if (movingToFinalPoint) {
         _x = currentTarget.x();
         _y = currentTarget.y();
     } else {
-        QVector2D moveStep = directionVector * moveDistance;
-        _x += moveStep.x();
-        _y += moveStep.y();
+        _x = nextPos.x();
+        _y = nextPos.y();
     }
 
+    // Обновляем угол поворота
     _angle = qRadiansToDegrees(qAtan2(directionVector.y(), directionVector.x())) - 90.0f;
 
     updateModelMatrixFromParameters();
-    QVector3D currentPosD= QVector3D(_x, _y, 0.02f); // Z = 0.02, чтобы рисовать чуть выше пола
+
+    // Отрисовка следа
+    QVector3D currentPosD= QVector3D(_x, _y, 0.02f); 
     if (currentPos.distanceToPoint(_lastTracePos.toVector2D()) > _traceMinDist) {
         _travelTrace.push_back(currentPosD);
         _lastTracePos = currentPosD;

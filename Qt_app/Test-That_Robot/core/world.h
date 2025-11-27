@@ -40,6 +40,8 @@ public:
     // --------------------------------------------
     using StatusCallback = std::function<void(const std::string&)>;
 
+    using GridChangeCallback = std::function<void()>;
+
 private:
     std::vector<std::unique_ptr<Object>> _primitives;
     bool _isSelected = false;
@@ -60,6 +62,7 @@ private:
     // --- 2. ПЕРЕМЕННАЯ CALLBACK (Теперь тип LogCallback известен) ---
     LogCallback _logCallback;
     StatusCallback _statusCallback;
+    GridChangeCallback _onGridChanged;
     // ----------------------------------------------------------------
 
 public:
@@ -120,6 +123,9 @@ public:
         }
     }
     void setStatusCallback(StatusCallback cb) { _statusCallback = cb; }
+
+    void setGrid(float w, float h, float cellSize); // Новый метод
+    void setGridChangeCallback(GridChangeCallback cb) { _onGridChanged = cb; }
     // ---------------------------------
 };
 

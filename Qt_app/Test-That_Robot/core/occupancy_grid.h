@@ -5,7 +5,7 @@
 #include <object.h>
 #include <obstacle.h>
 
-#define OCCUPANCY_THRESHOLD 127
+#define OCCUPANCY_THRESHOLD 10
 
 
 class OccupancyGrid{
